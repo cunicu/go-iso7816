@@ -27,7 +27,7 @@ linters-settings:
     sections:
     - standard
     - default
-    - prefix(cunicu.li/skeleton)
+    - prefix(cunicu.li/go-iso7816)
     - blank
     - dot
 
