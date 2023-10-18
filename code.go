@@ -24,8 +24,8 @@ var (
 	ErrSelectedFileInTermination   = Code{0x62, 0x85} // Selected file in termination state
 	ErrNoSensorData                = Code{0x62, 0x86} // No input data available from a sensor on the card
 
-	ErrUnspecifiedWarningModiefied = Code{0x63, 0x00} // No information given (warning)
-	ErrFileFilledUp                = Code{0x63, 0x81} // File filled up by the last write
+	ErrUnspecifiedWarningModified = Code{0x63, 0x00} // No information given (warning)
+	ErrFileFilledUp               = Code{0x63, 0x81} // File filled up by the last write
 	// ErrCounter                     = Code{0x63, 0xC0} // Counter from 0 to 15 encoded by 'X' (exact meaning depending on the command)
 
 	ErrExecution                 = Code{0x64, 0x00} // Execution error (error)
@@ -43,15 +43,15 @@ var (
 	ErrExpectedLastCommand         = Code{0x68, 0x83} // Last command of the chain expected
 	ErrCommandChainingNotSupported = Code{0x68, 0x84} // Command chaining not supported
 
-	ErrCommandNotAllowed                  = Code{0x69, 0x00} // Command not allowed
-	ErrCommandIncompatibleWithFile        = Code{0x68, 0x81} // Command incompatible with file structure
-	ErrSecurityStatusNotSatisfied         = Code{0x68, 0x82} // Security status not satisfied
-	ErrAuthenticationMethodBlocked        = Code{0x68, 0x83} // Authentication method blocked
-	ErrReferenceDataNotUsable             = Code{0x68, 0x84} // Reference data not usable
-	ErrConditionsOfUseNotSatisfied        = Code{0x68, 0x85} // Conditions of use not satisfied
-	ErrCommandNotAllowedNoCurrentEF       = Code{0x68, 0x86} // Command not allowed (no current EF)
-	ErrExpectedSecureMessaging            = Code{0x68, 0x87} // Expected secure messaging data objects missing
-	ErrIncorredSecureMessagingDataObjects = Code{0x68, 0x88} // Incorrect secure messaging data objects
+	ErrCommandNotAllowed                   = Code{0x69, 0x00} // Command not allowed
+	ErrCommandIncompatibleWithFile         = Code{0x68, 0x81} // Command incompatible with file structure
+	ErrSecurityStatusNotSatisfied          = Code{0x68, 0x82} // Security status not satisfied
+	ErrAuthenticationMethodBlocked         = Code{0x68, 0x83} // Authentication method blocked
+	ErrReferenceDataNotUsable              = Code{0x68, 0x84} // Reference data not usable
+	ErrConditionsOfUseNotSatisfied         = Code{0x68, 0x85} // Conditions of use not satisfied
+	ErrCommandNotAllowedNoCurrentEF        = Code{0x68, 0x86} // Command not allowed (no current EF)
+	ErrExpectedSecureMessaging             = Code{0x68, 0x87} // Expected secure messaging data objects missing
+	ErrIncorrectSecureMessagingDataObjects = Code{0x68, 0x88} // Incorrect secure messaging data objects
 
 	ErrWrongParamsUnspecified       = Code{0x6A, 0x00} // No information given (error)
 	ErrIncorrectParamsInCommandData = Code{0x6A, 0x80} // Incorrect parameters in the command data field
