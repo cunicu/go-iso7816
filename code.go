@@ -75,9 +75,6 @@ var (
 
 // Error return the encapsulated error string
 func (c Code) Error() string {
-	switch c {
-	}
-
 	return fmt.Sprintf("unknown (%x)", c[:])
 }
 
