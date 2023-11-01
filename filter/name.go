@@ -29,13 +29,13 @@ func HasNameRegex(regex string) Filter {
 // IsYubikey checks if the smart card is a YubiKey
 // based on the name of the smart card reader.
 func IsYubiKey(n string, c *iso.Card) (bool, error) {
-	return HasNameRegex("YubiKey")(n, c)
+	return HasNameRegex("(?i)YubiKey")(n, c)
 }
 
 // IsNikrokey checks if the smart card is a Nitrokey
 // based on the name of the smart card reader.
 func IsNitrokey(n string, c *iso.Card) (bool, error) {
-	return HasNameRegex("Nitrokey")(n, c)
+	return HasNameRegex("(?i)Nitrokey")(n, c)
 }
 
 // IsNikrokey3 checks if the smart card is a Nitrokey 3
