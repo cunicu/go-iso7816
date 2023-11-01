@@ -6,6 +6,7 @@ package test
 import (
 	"errors"
 	"log/slog"
+	"os"
 	"testing"
 
 	"github.com/ebfe/scard"
@@ -28,12 +29,22 @@ import (
 func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.Card)) {
 	require := require.New(t)
 
-	ctx, err := scard.EstablishContext()
-	require.NoError(err)
+	var realCard iso.PCSCCard
 
-	realCard, err := pcsc.OpenFirstCard(ctx, flt)
-	if errors.Is(err, pcsc.ErrNoCardFound) {
-		t.Log("Warn: no real cards found. Using mocked card instead!")
+	if isCI := os.Getenv("CI") != ""; isCI {
+		t.Log("Warning: Running on CI. Using mocked card!")
+	} else {
+		ctx, err := scard.EstablishContext()
+		require.NoError(err)
+
+		defer func() {
+			err = ctx.Release()
+			require.NoError(err)
+		}()
+
+		if realCard, err = pcsc.OpenFirstCard(ctx, flt); errors.Is(err, pcsc.ErrNoCardFound) {
+			t.Log("Warning: no real cards found. Using mocked card instead!")
+		}
 	}
 
 	mockedCard, err := NewMockCard(t, realCard)
@@ -43,9 +54,6 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 	isoCard := iso.NewCard(tracedCard)
 
 	cb(t, isoCard)
-
-	err = ctx.Release()
-	require.NoError(err)
 
 	err = mockedCard.Close()
 	require.NoError(err)
