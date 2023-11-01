@@ -18,7 +18,7 @@ type Status struct {
 
 func (s *Status) Unmarshal(b []byte) error {
 	if len(b) != 6 {
-		return errors.New("invalid response length")
+		return ErrInvalidResponseLength
 	}
 
 	s.Version = Version{
@@ -26,7 +26,7 @@ func (s *Status) Unmarshal(b []byte) error {
 		Minor: int(b[1]),
 		Patch: int(b[2]),
 	}
-	s.Sequence = uint8(b[3])
+	s.Sequence = b[3]
 	s.TouchLevel = binary.BigEndian.Uint16(b[4:])
 
 	return nil
@@ -74,7 +74,7 @@ func GetFIPSMode(c *iso.Card) (bool, error) {
 		P2:  0x00,
 	})
 	if err != nil {
-		if err == iso.ErrIncorrectParams || err == iso.ErrWrongParams {
+		if errors.Is(err, iso.ErrIncorrectParams) || errors.Is(err, iso.ErrWrongParams) {
 			return false, nil
 		}
 

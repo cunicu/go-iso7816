@@ -83,6 +83,7 @@ type DeviceInfo struct {
 	IsFIPS           bool
 }
 
+// nolint: gocognit
 func (di *DeviceInfo) Unmarshal(b []byte) error {
 	tvs, err := tlv.DecodeSimple(b[1:])
 	if err != nil {

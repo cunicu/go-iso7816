@@ -6,17 +6,17 @@ package nitrokey_test
 import (
 	"testing"
 
-	"cunicu.li/go-iso7816"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+
 	iso "cunicu.li/go-iso7816"
 	nk "cunicu.li/go-iso7816/devices/nitrokey"
 	"cunicu.li/go-iso7816/filter"
 	"cunicu.li/go-iso7816/test"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
 )
 
 func TestGetUUID(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso7816.Card) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso.Card) {
 		require := require.New(t)
 
 		_, err := c.Select(iso.AidSolokeysAdmin)
@@ -33,7 +33,7 @@ func TestGetUUID(t *testing.T) {
 }
 
 func TestGetFirmwareVersion(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso7816.Card) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso.Card) {
 		require := require.New(t)
 
 		_, err := c.Select(iso.AidSolokeysAdmin)
@@ -47,7 +47,7 @@ func TestGetFirmwareVersion(t *testing.T) {
 }
 
 func TestGetStatus(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso7816.Card) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, c *iso.Card) {
 		require := require.New(t)
 
 		_, err := c.Select(iso.AidSolokeysAdmin)
