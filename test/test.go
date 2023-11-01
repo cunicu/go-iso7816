@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/ebfe/scard"
@@ -44,17 +45,50 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 
 		if realCard, err = pcsc.OpenFirstCard(ctx, flt); errors.Is(err, pcsc.ErrNoCardFound) {
 			t.Log("Warning: no real cards found. Using mocked card instead!")
+		} else {
+			defer func() {
+				err := realCard.Close()
+				require.NoError(err)
+			}()
 		}
 	}
 
-	mockedCard, err := NewMockCard(t, realCard)
-	require.NoError(err)
+	withMock := func(t *testing.T) {
+		mockedCard, err := NewMockCard(t, realCard)
+		require.NoError(err)
 
-	tracedCard := NewTraceCard(mockedCard, slog.Default())
-	isoCard := iso.NewCard(tracedCard)
+		defer func() {
+			err = mockedCard.Close()
+			require.NoError(err)
+		}()
 
-	cb(t, isoCard)
+		tracedCard := NewTraceCard(mockedCard, slog.Default())
+		isoCard := iso.NewCard(tracedCard)
 
-	err = mockedCard.Close()
-	require.NoError(err)
+		cb(t, isoCard)
+	}
+
+	mockDir := filepath.Join("mockdata", t.Name())
+	if fi, err := os.Stat(mockDir); err == nil {
+		require.True(fi.IsDir(), "Mockdata directory must be a directory")
+	} else if errors.Is(err, os.ErrNotExist) {
+		err = os.MkdirAll(mockDir, 0o755)
+		require.NoError(err)
+	}
+
+	if realCard != nil {
+		t.Run("latest", withMock)
+	} else {
+		entries, err := os.ReadDir(mockDir)
+		require.NoError(err)
+
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+
+			// subMockDir := filepath.Join(mockDir, entry.Name())
+			t.Run(entry.Name(), withMock)
+		}
+	}
 }
