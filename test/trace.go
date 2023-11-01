@@ -12,6 +12,8 @@ import (
 	iso "cunicu.li/go-iso7816"
 )
 
+var _ iso.PCSCCard = (*TraceCard)(nil)
+
 // TraceCard is a wrapper around iso7816.PCSCCard
 // which logs a exchanged commands (APDUs) to a log/slog
 // logger.
@@ -71,4 +73,8 @@ func (c *TraceCard) EndTransaction() error {
 	c.logger.Info("EndTransaction")
 
 	return c.next.EndTransaction()
+}
+
+func (c *TraceCard) Close() error {
+	return nil
 }

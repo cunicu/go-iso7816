@@ -11,6 +11,7 @@ type PCSCCard interface {
 	Transmit([]byte) ([]byte, error)
 	BeginTransaction() error
 	EndTransaction() error
+	Close() error
 }
 
 type Card struct {
