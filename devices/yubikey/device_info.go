@@ -44,7 +44,7 @@ const (
 	CapFIDO2   Capability = 0x200
 	CapOATH    Capability = 0x20
 	CapPIV     Capability = 0x10
-	CapOPENPGP Capability = 0x08
+	CapOpenPGP Capability = 0x08
 	CapHSMAUTH Capability = 0x100
 )
 
