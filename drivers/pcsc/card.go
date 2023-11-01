@@ -43,3 +43,8 @@ func (c *Card) BeginTransaction() error {
 func (c *Card) EndTransaction() error {
 	return c.Card.EndTransaction(scard.LeaveCard)
 }
+
+// Close disconnects and resets the card
+func (c *Card) Close() error {
+	return c.Card.Disconnect(scard.ResetCard)
+}

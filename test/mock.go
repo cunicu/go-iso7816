@@ -33,8 +33,8 @@ type MockCard struct {
 	mock.Mock
 	test *testing.T
 
-	calls    []call
-	realCard iso.PCSCCard
+	calls []call
+	next  iso.PCSCCard
 }
 
 // NewMockCard creates a new smart card mock.
@@ -47,13 +47,13 @@ type MockCard struct {
 // be recorded and written the the transcript file above during Close().
 func NewMockCard(t *testing.T, realCard iso.PCSCCard) (c *MockCard, err error) {
 	c = &MockCard{
-		test:     t,
-		realCard: realCard,
+		test: t,
+		next: realCard,
 	}
 
 	c.Mock.Test(c.test)
 
-	if c.realCard == nil {
+	if c.next == nil {
 		if err := c.LoadTranscript(); err != nil {
 			return nil, fmt.Errorf("failed to load transcript: %w", err)
 		}
@@ -65,19 +65,20 @@ func NewMockCard(t *testing.T, realCard iso.PCSCCard) (c *MockCard, err error) {
 // Close invokes WriteTranscript() in case a real-card
 // was passed to NewMockCard().
 func (c *MockCard) Close() error {
-	if c.realCard != nil {
+	if c.next != nil {
 		if err := c.WriteTranscript(); err != nil {
 			return fmt.Errorf("failed to write transcript: %w", err)
 		}
 	}
 
 	c.Mock.AssertExpectations(c.test)
+
 	return nil
 }
 
 func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
-	if c.realCard != nil {
-		resp, err = c.realCard.Transmit(cmd)
+	if c.next != nil {
+		resp, err = c.next.Transmit(cmd)
 
 		c.calls = append(c.calls, call{
 			Method:   "Transmit",
@@ -95,24 +96,24 @@ func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 }
 
 func (c *MockCard) BeginTransaction() error {
-	if c.realCard != nil {
+	if c.next != nil {
 		c.calls = append(c.calls, call{
 			Method: "BeginTransaction",
 		})
 
-		return c.realCard.BeginTransaction()
+		return c.next.BeginTransaction()
 	}
 
 	return nil
 }
 
 func (c *MockCard) EndTransaction() error {
-	if c.realCard != nil {
+	if c.next != nil {
 		c.calls = append(c.calls, call{
 			Method: "EndTransaction",
 		})
 
-		return c.realCard.EndTransaction()
+		return c.next.EndTransaction()
 	}
 
 	return nil
