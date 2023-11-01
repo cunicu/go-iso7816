@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2023 Steffen Vogel <post@steffenvogel.de>
 // SPDX-License-Identifier: Apache-2.0
 
+// Package nitrokey implements basic support for getting status and details about Nitrokey 3 tokens.
 package nitrokey
 
 import (
@@ -68,6 +69,7 @@ func (ds *DeviceStatus) Unmarshal(b []byte) error {
 	return nil
 }
 
+// GetDeviceStatus returns the device status of the Nitrokey 3 token.
 func GetDeviceStatus(c *iso7816.Card) (*DeviceStatus, error) {
 	resp, err := c.Send(&iso7816.CAPDU{
 		Ins:  iso7816.Instruction(InsAdminGetStatus),
@@ -88,6 +90,7 @@ func GetDeviceStatus(c *iso7816.Card) (*DeviceStatus, error) {
 	return ds, nil
 }
 
+// GetUUID returns the UUID of the Nitrokey 3 token.
 func GetUUID(c *iso7816.Card) ([]byte, error) {
 	return c.Send(&iso7816.CAPDU{
 		Ins: InsGetUUID,
@@ -119,6 +122,7 @@ func (v *Version) Unmarshal(b []byte) error {
 	return nil
 }
 
+// GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
 func GetFirmwareVersion(c *iso7816.Card) (*Version, error) {
 	resp, err := c.Send(&iso7816.CAPDU{
 		Ins:  InsGetFirmwareVersion,

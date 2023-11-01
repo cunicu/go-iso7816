@@ -190,6 +190,7 @@ func (di *DeviceInfo) Unmarshal(b []byte) error {
 	return nil
 }
 
+// GetDeviceInfo returns device information about the YubiKey token.
 func GetDeviceInfo(c *iso.Card) (*DeviceInfo, error) {
 	resp, err := c.Send(&iso.CAPDU{
 		Ins: 0x1D,

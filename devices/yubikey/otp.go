@@ -32,6 +32,7 @@ func (s *Status) Unmarshal(b []byte) error {
 	return nil
 }
 
+// GetStatus returns the status of the YubiKey token.
 func GetStatus(c *iso.Card) (*Status, error) {
 	resp, err := c.Send(&iso.CAPDU{
 		Ins: InsReadStatus,
@@ -50,6 +51,7 @@ func GetStatus(c *iso.Card) (*Status, error) {
 	return sts, nil
 }
 
+// GetSerialNumber returns the serial number of the YubiKey token.
 func GetSerialNumber(c *iso.Card) (uint32, error) {
 	resp, err := c.Send(&iso.CAPDU{
 		Ins: InsOTP,
@@ -67,6 +69,7 @@ func GetSerialNumber(c *iso.Card) (uint32, error) {
 	return binary.BigEndian.Uint32(resp), nil
 }
 
+// GetFIPSMode returns returns the FIPS compliancy state of the YubiKey token.
 func GetFIPSMode(c *iso.Card) (bool, error) {
 	resp, err := c.Send(&iso.CAPDU{
 		Ins: InsOTP,
