@@ -12,9 +12,10 @@ import (
 var errInvalidLength = errors.New("invalid length")
 
 type TagValue struct {
-	Tag      Tag
-	Value    []byte
-	Children []TagValue
+	Tag        Tag
+	Value      []byte
+	Children   []TagValue
+	SkipLength bool
 }
 
 func New(t Tag, values ...any) (tv TagValue) {

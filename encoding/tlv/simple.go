@@ -11,7 +11,9 @@ func EncodeSimple(tvs ...TagValue) (buf []byte, err error) {
 			return nil, ErrTagToBig
 		}
 
-		if l := len(tv.Value); l < 0xff {
+		if tv.SkipLength {
+			buf = append(buf, byte(tv.Tag))
+		} else if l := len(tv.Value); l < 0xff {
 			buf = append(buf, byte(tv.Tag), byte(l))
 		} else if l <= 0xffff {
 			buf = append(buf, byte(tv.Tag), 0xff, byte(l>>8), byte(l))
