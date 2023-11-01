@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2023 Steffen Vogel <post@steffenvogel.de>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# go-iso7816: Go implementation of the ISO7816 standard for smart card communication
+# go-iso7816: Go implementation of the ISO 7816 standard for smart card communication
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/cunicu/go-iso7816/test.yaml?style=flat-square)](https://github.com/cunicu/go-iso7816/actions)
 [![goreportcard](https://goreportcard.com/badge/github.com/cunicu/go-iso7816?style=flat-square)](https://goreportcard.com/report/github.com/cunicu/go-iso7816)
@@ -16,11 +16,36 @@ SPDX-License-Identifier: Apache-2.0
 
 This includes:
 
-- Abstract interface for smart card communcation
+- Abstract interface for smart card communication
 - APDU parsing and serialization
-- Handling of extended length APDUs
-- ASN.1 Basic Encoding Rules (BER)
-- Constants of common instructions and status codes
+  - Extended-length support
+  - TLV en- & decoding variants
+    - ASN.1 BER-TLV
+    - Simple TLVs
+    - Compact TLVs
+
+- Constants of
+  - Inter-industry instructions and status codes
+  - Application Identifiers (AIDs)
+
+- Basic card management and query support for:
+  - [YubiKeys](https://www.yubico.com/)
+  - [Nitrokeys](https://nitrokey.com/)
+
+- Card enumeration and filters
+
+- Testing utilities
+  - Smartcard Mock Object
+  - Tracing Wrapper
+
+In the future we might want to add support for:
+
+- More device support for existing cards
+- Global Platform's Secure Channel Protocol (SCP03)
+- Cross-platform transport implementations
+  - Direct CCID
+  - Apples CryptoTokenKit
+  - CGo-less pcscd / libpcsc-lite
 
 ## Authors
 
