@@ -38,6 +38,8 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter) (cards []iso.PCSC
 					cards = append(cards, card.PCSCCard)
 					break
 				}
+			} else if err != nil {
+				return nil, err
 			}
 		}
 
