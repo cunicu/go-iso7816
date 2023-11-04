@@ -7,6 +7,10 @@ import (
 	"fmt"
 )
 
+type ResettableCard interface {
+	Reset() error
+}
+
 type PCSCCard interface {
 	Transmit([]byte) ([]byte, error)
 	BeginTransaction() error
