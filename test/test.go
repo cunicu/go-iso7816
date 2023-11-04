@@ -76,8 +76,13 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 		require.NoError(err)
 	}
 
+	testName := os.Getenv("TEST_RUN_NAME")
+	if testName == "" {
+		testName = "latest"
+	}
+
 	if realCard != nil {
-		t.Run("latest", withMock)
+		t.Run(testName, withMock)
 	} else {
 		entries, err := os.ReadDir(mockDir)
 		require.NoError(err)
