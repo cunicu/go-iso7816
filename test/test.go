@@ -92,3 +92,39 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 		}
 	}
 }
+
+// PCSCCard unwraps a card which has been passed to the callback of WithCard().
+// It can be useful to assert that a test is currently running with a real card.
+func PCSCCard(card *iso.Card) iso.PCSCCard {
+	prev := card.PCSCCard
+
+	for {
+		switch card := prev.(type) {
+		case *iso.Card:
+			prev = card.PCSCCard
+		case *MockCard:
+			prev = card.next
+		case *TraceCard:
+			prev = card.next
+		case *pcsc.Card:
+			return card
+		default:
+			return nil
+		}
+	}
+}
+
+// ResetCard is a helper to reset a test card
+func ResetCard(card *iso.Card) error {
+	pcscCard := PCSCCard(card)
+	if pcscCard == nil {
+		return errors.New("failed to find card")
+	}
+
+	resetCard, ok := pcscCard.(iso.ResettableCard)
+	if !ok {
+		return errors.New("card not resettable")
+	}
+
+	return resetCard.Reset()
+}

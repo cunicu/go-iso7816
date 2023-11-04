@@ -48,3 +48,8 @@ func (c *Card) EndTransaction() error {
 func (c *Card) Close() error {
 	return c.Card.Disconnect(scard.ResetCard)
 }
+
+// Reset reconnects and resets the card
+func (c *Card) Reset() error {
+	return c.Card.Reconnect(scard.ShareShared, scard.ProtocolT1, scard.ResetCard)
+}
