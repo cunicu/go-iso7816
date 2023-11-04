@@ -32,9 +32,7 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 
 	var realCard iso.PCSCCard
 
-	if isCI := os.Getenv("CI") != ""; isCI {
-		t.Log("Warning: Running on CI. Using mocked card!")
-	} else {
+	if os.Getenv("TEST_USE_REAL_CARD") != "" {
 		ctx, err := scard.EstablishContext()
 		require.NoError(err)
 
@@ -51,6 +49,8 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 				require.NoError(err)
 			}()
 		}
+	} else {
+		t.Log("Warning: Running with mocked smart card. Set env var TEST_USE_READ_CARD=1 to test against a real smart card.")
 	}
 
 	withMock := func(t *testing.T) {
