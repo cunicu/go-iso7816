@@ -18,6 +18,11 @@ import (
 	"cunicu.li/go-iso7816/filter"
 )
 
+var (
+	ErrFailedToCastCard  = errors.New("failed to cast card")
+	ErrCardNotResettable = errors.New("card not resettable")
+)
+
 // WithCard opens the first card matching the filter flt and wraps it with the
 // TraceCard and MockCard wrappers to trace commands for debugging as well
 // as record a transcript of commands exchanged during the test.
@@ -123,12 +128,12 @@ func PCSCCard(card *iso.Card) iso.PCSCCard {
 func ResetCard(card *iso.Card) error {
 	pcscCard := PCSCCard(card)
 	if pcscCard == nil {
-		return errors.New("failed to find card")
+		return ErrFailedToCastCard
 	}
 
 	resetCard, ok := pcscCard.(iso.ResettableCard)
 	if !ok {
-		return errors.New("card not resettable")
+		return ErrCardNotResettable
 	}
 
 	return resetCard.Reset()
