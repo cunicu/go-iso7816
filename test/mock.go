@@ -86,7 +86,7 @@ func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 			Response: resp,
 		})
 	} else {
-		args := c.Mock.Called(cmd)
+		args := c.Mock.MethodCalled("Transmit", cmd)
 
 		resp = args.Get(0).([]byte) //nolint:forcetypeassert
 		err = args.Error(1)
@@ -104,7 +104,8 @@ func (c *MockCard) BeginTransaction() error {
 		return c.next.BeginTransaction()
 	}
 
-	return nil
+	args := c.Mock.MethodCalled("BeginTransaction")
+	return args.Error(0)
 }
 
 func (c *MockCard) EndTransaction() error {
@@ -116,7 +117,8 @@ func (c *MockCard) EndTransaction() error {
 		return c.next.EndTransaction()
 	}
 
-	return nil
+	args := c.Mock.MethodCalled("EndTransaction")
+	return args.Error(0)
 }
 
 // LoadTranscript loads the a command transcript from
