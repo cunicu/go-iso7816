@@ -17,7 +17,7 @@ import (
 var ErrNoCardFound = errors.New("no card found")
 
 // OpenCards opens up to cnt cards which match the provided filter flt.
-func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter) (cards []iso.PCSCCard, err error) {
+func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter, shared bool) (cards []iso.PCSCCard, err error) {
 	readers, err := ctx.ListReaders()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list readers: %w", err)
@@ -30,7 +30,7 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter) (cards []iso.PCSC
 		var card *iso.Card
 		for i := 0; i < 2; i++ {
 			if match, err := flt(reader, card); errors.Is(err, filter.ErrOpen) || match {
-				if card, err = NewCard(ctx, reader); err != nil {
+				if card, err = NewCard(ctx, reader, shared); err != nil {
 					return nil, fmt.Errorf("failed to connect to card: %w", err)
 				}
 
@@ -53,8 +53,8 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter) (cards []iso.PCSC
 
 // OpenFirstCard opens the first card which matches the filter flt
 // or returns ErrNoCardFound if none was found.
-func OpenFirstCard(ctx *scard.Context, flt filter.Filter) (iso.PCSCCard, error) {
-	cards, err := OpenCards(ctx, 1, flt)
+func OpenFirstCard(ctx *scard.Context, flt filter.Filter, shared bool) (iso.PCSCCard, error) {
+	cards, err := OpenCards(ctx, 1, flt, shared)
 	if err != nil {
 		return nil, err
 	} else if len(cards) != 1 {

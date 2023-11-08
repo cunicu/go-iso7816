@@ -20,8 +20,13 @@ type Card struct {
 }
 
 // NewCard creates a new card by connecting via the PC/SC API.
-func NewCard(ctx *scard.Context, reader string) (*iso.Card, error) {
-	sc, err := ctx.Connect(reader, scard.ShareShared, scard.ProtocolAny)
+func NewCard(ctx *scard.Context, reader string, shared bool) (*iso.Card, error) {
+	mode := scard.ShareExclusive
+	if shared {
+		mode = scard.ShareShared
+	}
+
+	sc, err := ctx.Connect(reader, mode, scard.ProtocolAny)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to reader: %w", err)
 	}
