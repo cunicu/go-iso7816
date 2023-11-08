@@ -100,30 +100,8 @@ func GetUUID(c *iso7816.Card) ([]byte, error) {
 	})
 }
 
-type Version struct {
-	Major int
-	Minor int
-	Patch int
-}
-
-func (v *Version) Unmarshal(b []byte) error {
-	if len(b) != 4 {
-		return ErrInvalidLength
-	}
-
-	version := binary.BigEndian.Uint32(b)
-
-	// This is the reverse of the calculation in runners/lpc55/build.rs (CARGO_PKG_VERSION):
-	// https://github.com/Nitrokey/nitrokey-3-firmware/blob/main/runners/lpc55/build.rs#L131
-	v.Major = int(version >> 22)
-	v.Minor = int((version >> 6) & ((1 << 16) - 1))
-	v.Patch = int(version & ((1 << 6) - 1))
-
-	return nil
-}
-
 // GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
-func GetFirmwareVersion(c *iso7816.Card) (*Version, error) {
+func GetFirmwareVersion(c *iso7816.Card) (*iso7816.Version, error) {
 	resp, err := c.Send(&iso7816.CAPDU{
 		Ins:  InsGetFirmwareVersion,
 		P1:   0x00,
@@ -135,10 +113,17 @@ func GetFirmwareVersion(c *iso7816.Card) (*Version, error) {
 		return nil, err
 	}
 
-	v := &Version{}
-	if err := v.Unmarshal(resp); err != nil {
-		return nil, err
+	if len(resp) != 4 {
+		return nil, ErrInvalidLength
 	}
 
-	return v, nil
+	version := binary.BigEndian.Uint32(resp)
+
+	// This is the reverse of the calculation in runners/lpc55/build.rs (CARGO_PKG_VERSION):
+	// https://github.com/Nitrokey/nitrokey-3-firmware/blob/main/runners/lpc55/build.rs#L131
+	return &iso7816.Version{
+		Major: int(version >> 22),
+		Minor: int((version >> 6) & ((1 << 16) - 1)),
+		Patch: int(version & ((1 << 6) - 1)),
+	}, nil
 }
