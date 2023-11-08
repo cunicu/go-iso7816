@@ -46,7 +46,7 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 			require.NoError(err)
 		}()
 
-		if realCard, err = pcsc.OpenFirstCard(ctx, flt); errors.Is(err, pcsc.ErrNoCardFound) {
+		if realCard, err = pcsc.OpenFirstCard(ctx, flt, true); errors.Is(err, pcsc.ErrNoCardFound) {
 			t.Log("Warning: no real cards found. Using mocked card instead!")
 		} else {
 			defer func() {
