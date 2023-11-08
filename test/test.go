@@ -62,7 +62,7 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 			}()
 		}
 	} else {
-		t.Log("Warning: Running with mocked smart card. Set env var TEST_USE_READ_CARD=1 to test against a real smart card.")
+		t.Log("Warning: Running with mocked smart card. Set env var TEST_DANGEROUS_WIPE_REAL_CARD=1 to test against a real smart card.")
 	}
 
 	withMock := func(t *testing.T) {
