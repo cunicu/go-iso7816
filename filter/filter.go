@@ -32,20 +32,22 @@ var Any Filter = func(name string, c *iso.Card) (bool, error) {
 
 // HasApplet matches card which can select an applet
 // with the given application identifier (AID).
-func HasApplet(c *iso.Card, aid []byte) (bool, error) {
-	if c == nil {
-		return false, ErrOpen
-	}
+func HasApplet(aid []byte) Filter {
+	return func(name string, c *iso.Card) (bool, error) {
+		if c == nil {
+			return false, ErrOpen
+		}
 
-	tx, err := c.NewTransaction()
-	if err != nil {
-		return false, fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer tx.Close()
+		tx, err := c.NewTransaction()
+		if err != nil {
+			return false, fmt.Errorf("failed to begin transaction: %w", err)
+		}
+		defer tx.Close()
 
-	if _, err := tx.Select(aid); err != nil {
-		return false, nil //nolint:nilerr
-	}
+		if _, err := tx.Select(aid); err != nil {
+			return false, nil //nolint:nilerr
+		}
 
-	return true, nil
+		return true, nil
+	}
 }
