@@ -30,6 +30,13 @@ var Any Filter = func(name string, c *iso.Card) (bool, error) {
 	return true, nil
 }
 
+// None matches no card
+//
+//nolint:gochecknoglobals
+var None Filter = func(name string, c *iso.Card) (bool, error) {
+	return false, nil
+}
+
 // HasApplet matches card which can select an applet
 // with the given application identifier (AID).
 func HasApplet(aid []byte) Filter {
