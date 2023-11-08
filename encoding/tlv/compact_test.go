@@ -23,7 +23,7 @@ func TestEncodeCompact(t *testing.T) {
 
 	tvs, err := tlv.DecodeCompact(buf)
 	require.NoError(err)
-	require.Equal([]tlv.TagValue{
+	require.Equal(tlv.TagValues{
 		{
 			Tag:   1,
 			Value: []byte{0x10, 0x11, 0x12, 0x13},

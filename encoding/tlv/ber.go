@@ -27,10 +27,6 @@ func (t Tag) IsConstructed() bool {
 func (tv TagValue) MarshalBER() (buf []byte, err error) {
 	var cbuf []byte
 
-	if len(tv.Children) > 0 && !tv.Tag.IsConstructed() {
-		return nil, ErrNotConstructed
-	}
-
 	for _, child := range tv.Children {
 		ccb, err := child.MarshalBER()
 		if err != nil {
@@ -85,7 +81,6 @@ func (tv *TagValue) UnmarshalBER(buf []byte) ([]byte, error) {
 		if tv.Children, err = DecodeBER(tv.Value); err != nil {
 			return nil, err
 		}
-		tv.Value = nil
 	}
 
 	return buf[l:], nil
@@ -104,7 +99,7 @@ func EncodeBER(tvs ...TagValue) (buf []byte, err error) {
 	return buf, nil
 }
 
-func DecodeBER(buf []byte) (tvs []TagValue, err error) {
+func DecodeBER(buf []byte) (tvs TagValues, err error) {
 	for len(buf) > 0 {
 		var tv TagValue
 		if buf, err = tv.UnmarshalBER(buf); err != nil {

@@ -27,7 +27,7 @@ func EncodeSimple(tvs ...TagValue) (buf []byte, err error) {
 	return buf, nil
 }
 
-func DecodeSimple(buf []byte) (tvs []TagValue, err error) {
+func DecodeSimple(buf []byte) (tvs TagValues, err error) {
 	for len(buf) > 0 {
 		if len(buf) < 2 {
 			return nil, errInvalidLength

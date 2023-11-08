@@ -3,7 +3,7 @@
 
 package tlv
 
-func DecodeCompact(buf []byte) (tvs []TagValue, err error) {
+func DecodeCompact(buf []byte) (tvs TagValues, err error) {
 	for len(buf) > 0 {
 		if len(buf) < 1 {
 			return nil, errInvalidLength

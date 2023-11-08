@@ -20,7 +20,7 @@ func TestEncodeSimple(t *testing.T) {
 	expected = append(expected, long...)
 	expected = append(expected, 0x08, 0x03, 0x20, 0x21, 0x22)
 
-	tvsIn := []tlv.TagValue{
+	tvsIn := tlv.TagValues{
 		tlv.New(1, []byte{0x10, 0x11, 0x12, 0x13}),
 		tlv.New(2, long),
 		tlv.New(8, []byte{0x20, 0x21, 0x22}),
