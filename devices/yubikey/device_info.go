@@ -61,12 +61,6 @@ const (
 	FormFactorUSBCBio       FormFactor = 0x07
 )
 
-type Version struct {
-	Major int
-	Minor int
-	Patch int
-}
-
 type DeviceInfo struct {
 	Flags            DeviceFlag
 	CapsSupportedUSB Capability
@@ -74,7 +68,7 @@ type DeviceInfo struct {
 	CapsSupportedNFC Capability
 	CapsEnabledNFC   Capability
 	SerialNumber     uint32
-	FirmwareVersion  Version
+	FirmwareVersion  iso.Version
 	FormFactor       FormFactor
 	AutoEjectTimeout time.Duration
 	ChalRespTimeout  time.Duration
@@ -148,7 +142,7 @@ func (di *DeviceInfo) Unmarshal(b []byte) error {
 				return fmt.Errorf("%w: FirmwareVersion", ErrInvalidResponseLength)
 			}
 
-			di.FirmwareVersion = Version{
+			di.FirmwareVersion = iso.Version{
 				Major: int(tv.Value[0]),
 				Minor: int(tv.Value[1]),
 				Patch: int(tv.Value[2]),

@@ -11,7 +11,7 @@ import (
 )
 
 type Status struct {
-	Version    Version
+	Version    iso.Version
 	Sequence   uint8
 	TouchLevel uint16
 }
@@ -21,7 +21,7 @@ func (s *Status) Unmarshal(b []byte) error {
 		return ErrInvalidResponseLength
 	}
 
-	s.Version = Version{
+	s.Version = iso.Version{
 		Major: int(b[0]),
 		Minor: int(b[1]),
 		Patch: int(b[2]),
