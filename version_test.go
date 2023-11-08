@@ -6,8 +6,9 @@ package iso7816_test
 import (
 	"testing"
 
-	iso "cunicu.li/go-iso7816"
 	"github.com/stretchr/testify/require"
+
+	iso "cunicu.li/go-iso7816"
 )
 
 func TestParseVersion(t *testing.T) {
