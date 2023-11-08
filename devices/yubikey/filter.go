@@ -105,7 +105,7 @@ func hasCapabilityEnabled(c Capability) filter.Filter {
 }
 
 func withDeviceInfo(cb func(di *DeviceInfo) bool) filter.Filter {
-	return withApplet(iso.AidYubicoOTP, func(c *iso.Card) (bool, error) {
+	return withApplet(iso.AidYubicoManagement, func(c *iso.Card) (bool, error) {
 		di, err := GetDeviceInfo(c)
 		if err != nil {
 			return false, fmt.Errorf("failed to get device information: %w", err)
