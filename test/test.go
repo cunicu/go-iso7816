@@ -23,6 +23,11 @@ var (
 	ErrCardNotResettable = errors.New("card not resettable")
 )
 
+// DangerousWipeRealCard is a global flag which should be used to safe guard any
+// real smart cards from being accidentally wiped.
+// nolint: gochecknoglobals
+var DangerousWipeRealCard = os.Getenv("TEST_DANGEROUS_WIPE_REAL_CARD") != ""
+
 // WithCard opens the first card matching the filter flt and wraps it with the
 // TraceCard and MockCard wrappers to trace commands for debugging as well
 // as record a transcript of commands exchanged during the test.
@@ -37,7 +42,7 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 
 	var realCard iso.PCSCCard
 
-	if os.Getenv("TEST_USE_REAL_CARD") != "" {
+	if DangerousWipeRealCard {
 		ctx, err := scard.EstablishContext()
 		require.NoError(err)
 
