@@ -10,6 +10,28 @@ import (
 	"cunicu.li/go-iso7816/filter"
 )
 
+func HasVersionStr(s string) filter.Filter {
+	if v, err := iso.ParseVersion(s); err == nil {
+		return HasVersion(v)
+	}
+
+	return filter.None
+}
+
+// HasVersion checks that the card has a firmware version equal or higher
+// than the given one.
+func HasVersion(v iso.Version) filter.Filter {
+	return withApplet(iso.AidYubicoOTP, func(c *iso.Card) (bool, error) {
+		if sts, err := GetStatus(c); err != nil {
+			return false, err
+		} else if !sts.Version.Less(v) {
+			return false, nil
+		}
+
+		return true, nil
+	})
+}
+
 func IsSerialNumber(sno uint32) filter.Filter {
 	return withDeviceInfo(func(di *DeviceInfo) bool {
 		return di.SerialNumber == sno
