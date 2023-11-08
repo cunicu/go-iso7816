@@ -62,15 +62,13 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 		mockedCard, err := NewMockCard(t, realCard)
 		require.NoError(err)
 
-		defer func() {
-			err = mockedCard.Close()
-			require.NoError(err)
-		}()
-
 		tracedCard := NewTraceCard(mockedCard, slog.Default())
 		isoCard := iso.NewCard(tracedCard)
 
 		cb(t, isoCard)
+
+		err = mockedCard.Close()
+		require.NoError(err)
 	}
 
 	mockDir := filepath.Join("mockdata", t.Name())
