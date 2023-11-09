@@ -43,7 +43,7 @@ func (t Tag) MarshalBER() (buf []byte, err error) {
 
 // UnmarshalBER decodes an ASN.1 BER-TLV encoded tag field.
 // See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
-func (t *Tag) UnmarshalBER(buf []byte) (rbuf []byte, err error) {
+func (t *Tag) UnmarshalBER(buf []byte) (rBuf []byte, err error) {
 	if len(buf) < 1 {
 		return nil, errInvalidLength
 	}
@@ -73,7 +73,7 @@ func (t *Tag) UnmarshalBER(buf []byte) (rbuf []byte, err error) {
 // MarshalBER encodes an ASN.1 BER-TLV encoded tag field.
 // See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
 func (tv TagValue) MarshalBER() (buf []byte, err error) {
-	var cbuf []byte
+	var cBuf []byte
 
 	for _, child := range tv.Children {
 		ccb, err := child.MarshalBER()
@@ -81,7 +81,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 			return nil, err
 		}
 
-		cbuf = append(cbuf, ccb...)
+		cBuf = append(cBuf, ccb...)
 	}
 
 	tb, err := tv.Tag.MarshalBER()
@@ -89,15 +89,15 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 		panic("tag too large")
 	}
 
-	lb, err := encodeLengthBER(len(cbuf) + len(tv.Value))
+	lb, err := encodeLengthBER(len(cBuf) + len(tv.Value))
 	if err != nil {
 		panic("tag too large")
 	}
 
 	buf = append(buf, tb...)
 	buf = append(buf, lb...)
-	if cbuf != nil {
-		buf = append(buf, cbuf...)
+	if cBuf != nil {
+		buf = append(buf, cBuf...)
 	} else {
 		buf = append(buf, tv.Value...)
 	}
