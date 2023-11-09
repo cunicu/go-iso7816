@@ -24,6 +24,54 @@ func (t Tag) IsConstructed() bool {
 	return t&(1<<5) != 0
 }
 
+func (t Tag) MarshalBER() (buf []byte, err error) {
+	switch {
+	case t>>8 == 0:
+		buf = []byte{byte(t >> 0)}
+	case t>>16 == 0:
+		buf = []byte{byte(t >> 8), byte(t >> 0)}
+	case t>>24 == 0:
+		buf = []byte{byte(t >> 16), byte(t >> 8), byte(t >> 0)}
+	case t>>32 == 0:
+		buf = []byte{byte(t >> 24), byte(t >> 16), byte(t >> 8), byte(t >> 0)}
+	default:
+		return nil, errInvalidLength
+	}
+
+	return buf, nil
+}
+
+// UnmarshalBER decodes an ASN.1 BER-TLV encoded tag field.
+// See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
+func (t *Tag) UnmarshalBER(buf []byte) (rbuf []byte, err error) {
+	if len(buf) < 1 {
+		return nil, errInvalidLength
+	}
+
+	if buf[0]&0x1f != 0x1f {
+		*t = Tag(buf[0])
+		return buf[1:], nil
+	}
+
+	if len(buf) < 2 {
+		return nil, errInvalidLength
+	} else if buf[1]&0x80 == 0 && buf[1]&0x7f > 30 {
+		*t = Tag(uint32(buf[0])<<8 | uint32(buf[1]))
+		return buf[2:], nil
+	}
+
+	if len(buf) < 3 {
+		return nil, errInvalidLength
+	} else if buf[1]&0x80 == 0x80 && buf[1]&0x7f != 0 {
+		*t = Tag(uint32(buf[0])<<16 | uint32(buf[1])<<8 | uint32(buf[2]))
+		return buf[3:], nil
+	}
+
+	return nil, nil
+}
+
+// MarshalBER encodes an ASN.1 BER-TLV encoded tag field.
+// See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
 func (tv TagValue) MarshalBER() (buf []byte, err error) {
 	var cbuf []byte
 
@@ -36,7 +84,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 		cbuf = append(cbuf, ccb...)
 	}
 
-	tb, err := encodeTagBER(tv.Tag)
+	tb, err := tv.Tag.MarshalBER()
 	if err != nil {
 		panic("tag too large")
 	}
@@ -60,8 +108,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 func (tv *TagValue) UnmarshalBER(buf []byte) ([]byte, error) {
 	var err error
 
-	t, buf, err := decodeTagBER(buf)
-	if err != nil {
+	if buf, err = tv.Tag.UnmarshalBER(buf); err != nil {
 		return nil, err
 	}
 
@@ -74,7 +121,6 @@ func (tv *TagValue) UnmarshalBER(buf []byte) ([]byte, error) {
 		return nil, errInvalidLength
 	}
 
-	tv.Tag = t
 	tv.Value = buf[:l]
 
 	if tv.Tag.IsConstructed() {
@@ -112,32 +158,6 @@ func DecodeBER(buf []byte) (tvs TagValues, err error) {
 	return tvs, nil
 }
 
-// decodeTagBER decodes an ASN.1 BER-TLV encoded tag field.
-// See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
-func decodeTagBER(buf []byte) (t Tag, rbuf []byte, err error) {
-	if len(buf) < 1 {
-		return 0, nil, errInvalidLength
-	}
-
-	if buf[0]&0x1f != 0x1f {
-		return Tag(buf[0]), buf[1:], nil
-	}
-
-	if len(buf) < 2 {
-		return 0, nil, errInvalidLength
-	} else if buf[1]&0x80 == 0 && buf[1]&0x7f > 30 {
-		return Tag(uint32(buf[0])<<8 | uint32(buf[1])), buf[2:], nil
-	}
-
-	if len(buf) < 3 {
-		return 0, nil, errInvalidLength
-	} else if buf[1]&0x80 == 0x80 && buf[1]&0x7f != 0 {
-		return Tag(uint32(buf[0])<<16 | uint32(buf[1])<<8 | uint32(buf[2])), buf[3:], nil
-	}
-
-	return 0, nil, nil
-}
-
 // decodeLengthBER decodes an  ASN.1 BER-TLV encoded length field.
 // See: ISO 7816-4 Section 5.2.2.2 BER-TLV length fields
 func decodeLengthBER(buf []byte) (int, []byte, error) {
@@ -163,23 +183,6 @@ func decodeLengthBER(buf []byte) (int, []byte, error) {
 	}
 
 	return l, buf[n+1:], nil
-}
-
-func encodeTagBER(t Tag) (buf []byte, err error) {
-	switch {
-	case t>>8 == 0:
-		buf = []byte{byte(t >> 0)}
-	case t>>16 == 0:
-		buf = []byte{byte(t >> 8), byte(t >> 0)}
-	case t>>24 == 0:
-		buf = []byte{byte(t >> 16), byte(t >> 8), byte(t >> 0)}
-	case t>>32 == 0:
-		buf = []byte{byte(t >> 24), byte(t >> 16), byte(t >> 8), byte(t >> 0)}
-	default:
-		return nil, errInvalidLength
-	}
-
-	return buf, nil
 }
 
 func encodeLengthBER(l int) ([]byte, error) {
