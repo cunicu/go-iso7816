@@ -7,6 +7,7 @@ package tlv
 import (
 	"bytes"
 	"encoding"
+	"encoding/binary"
 	"errors"
 	"slices"
 )
@@ -50,9 +51,15 @@ func New(t Tag, values ...any) (tv TagValue) {
 		case string:
 			tv.Value = append(tv.Value, []byte(v)...)
 
+		case uint16:
+			tv.Value = binary.BigEndian.AppendUint16(tv.Value, v)
+		case uint32:
+			tv.Value = binary.BigEndian.AppendUint32(tv.Value, v)
+		case uint64:
+			tv.Value = binary.BigEndian.AppendUint64(tv.Value, v)
+
 		case TagValue:
 			tv.Children = append(tv.Children, v)
-
 		case TagValues:
 			tv.Children = append(tv.Children, v...)
 		}
