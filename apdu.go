@@ -43,13 +43,13 @@ func (c *CAPDU) Bytes() ([]byte, error) {
 	}
 
 	switch {
-	case len(c.Data) == 0 && c.Ne == 0:
+	case len(c.Data) == 0 && c.Ne == 0: // Case 1: Cla | Ins | P1 | P2
 		return []byte{c.Cla, byte(c.Ins), c.P1, c.P2}, nil
 
-	case len(c.Data) == 0 && c.Ne > 0:
-		// CASE 2: HEADER | LE
+	case len(c.Data) == 0 && c.Ne > 0: // Case 2
+		// Extended format: Cla | Ins | P1 | P2 | Le (extended)
 		if c.Ne > MaxLenResponseDataStandard {
-			le := make([]byte, LenLCExtended) // first byte is zero byte, so LE length is equal to LC length
+			le := make([]byte, LenLCExtended) // First byte is zero byte, so LE length is equal to LC length
 
 			if c.Ne == MaxLenResponseDataExtended {
 				le[1] = 0x00
@@ -60,15 +60,15 @@ func (c *CAPDU) Bytes() ([]byte, error) {
 			}
 
 			result := make([]byte, 0, LenHeader+LenLCExtended)
-			result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2}...)
+			result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2)
 			result = append(result, le...)
 
 			return result, nil
 		}
 
-		// standard format
+		// Standard format: Cla | Ins | P1 | P2 | Le
 		result := make([]byte, 0, LenHeader+LenLCStandard)
-		result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2}...)
+		result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2)
 
 		if c.Ne == MaxLenResponseDataStandard {
 			result = append(result, 0x00)
@@ -78,32 +78,30 @@ func (c *CAPDU) Bytes() ([]byte, error) {
 
 		return result, nil
 
-	case len(c.Data) != 0 && c.Ne == 0:
-		// CASE 3: HEADER | LC | DATA
+	case len(c.Data) != 0 && c.Ne == 0: // Case 3
+		// Extended format: Cla | Ins | P1 | P2 | Lc (extended) | Data
 		if len(c.Data) > MaxLenCommandDataStandard {
-			// extended length format
 			lc := make([]byte, LenLCExtended)
 			lc[1] = (byte)((len(c.Data) >> 8) & 0xFF)
 			lc[2] = (byte)(len(c.Data) & 0xFF)
 
 			result := make([]byte, 0, LenHeader+LenLCExtended+len(c.Data))
-			result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2}...)
+			result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2)
 			result = append(result, lc...)
 			result = append(result, c.Data...)
 
 			return result, nil
 		}
 
-		// standard format
+		// Standard format: Cla | Ins | P1 | P2 | Lc | Data
 		result := make([]byte, 0, LenHeader+1+len(c.Data))
-		result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2, byte(len(c.Data))}...)
+		result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2, byte(len(c.Data)))
 		result = append(result, c.Data...)
 
 		return result, nil
 
-	case c.Ne > MaxLenResponseDataStandard || len(c.Data) > MaxLenCommandDataStandard:
-		// CASE 4: HEADER | LC | DATA | LE (extended length format)
-		lc := make([]byte, LenLCExtended) // first byte is zero byte
+	case c.Ne > MaxLenResponseDataStandard || len(c.Data) > MaxLenCommandDataStandard: // Case 4: Cla | Ins | P1 | P2 | Lc (extended) | Data | Le (extended)
+		lc := make([]byte, LenLCExtended) // First byte is zero byte
 		lc[1] = (byte)((len(c.Data) >> 8) & 0xFF)
 		lc[2] = (byte)(len(c.Data) & 0xFF)
 
@@ -118,17 +116,16 @@ func (c *CAPDU) Bytes() ([]byte, error) {
 		}
 
 		result := make([]byte, 0, LenHeader+LenLCExtended+len(c.Data)+len(le))
-		result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2}...)
+		result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2)
 		result = append(result, lc...)
 		result = append(result, c.Data...)
 		result = append(result, le...)
 
 		return result, nil
 
-	default:
-		// standard format
+	default: // Standard format: Cla | Ins | P1 | P2 | Lc | Data | Ne
 		result := make([]byte, 0, LenHeader+LenLCStandard+len(c.Data)+1)
-		result = append(result, []byte{c.Cla, byte(c.Ins), c.P1, c.P2, byte(len(c.Data))}...)
+		result = append(result, c.Cla, byte(c.Ins), c.P1, c.P2, byte(len(c.Data)))
 		result = append(result, c.Data...)
 		result = append(result, byte(c.Ne))
 
