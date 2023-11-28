@@ -21,7 +21,12 @@ func (t Tag) Class() Class {
 }
 
 func (t Tag) IsConstructed() bool {
-	return t&(1<<5) != 0
+	u := t
+	for u > 0xff {
+		u >>= 8
+	}
+
+	return u&(1<<5) != 0
 }
 
 func (t Tag) MarshalBER() (buf []byte, err error) {
@@ -180,6 +185,7 @@ func decodeLengthBER(buf []byte) (int, []byte, error) {
 	for i := 1; i <= n; i++ {
 		l <<= 8
 		l |= int(buf[i])
+		// n--
 	}
 
 	return l, buf[n+1:], nil
