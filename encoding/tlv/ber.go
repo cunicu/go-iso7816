@@ -94,7 +94,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 		panic("tag too large")
 	}
 
-	lb, err := encodeLengthBER(len(cBuf) + len(tv.Value))
+	lb, err := EncodeLengthBER(len(cBuf) + len(tv.Value))
 	if err != nil {
 		panic("tag too large")
 	}
@@ -191,7 +191,7 @@ func decodeLengthBER(buf []byte) (int, []byte, error) {
 	return l, buf[n+1:], nil
 }
 
-func encodeLengthBER(l int) ([]byte, error) {
+func EncodeLengthBER(l int) ([]byte, error) {
 	switch {
 	case l < 0x80:
 		return []byte{byte(l)}, nil
