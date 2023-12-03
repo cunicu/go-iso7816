@@ -33,39 +33,43 @@ func New(t Tag, values ...any) (tv TagValue) {
 	tv.Tag = t
 
 	for _, value := range values {
-		switch v := value.(type) {
-		case encoding.BinaryMarshaler:
-			data, err := v.MarshalBinary()
-			if err != nil {
-				panic("failed to marshal")
-			}
-
-			tv.Value = append(tv.Value, data...)
-
-		case byte:
-			tv.Value = append(tv.Value, v)
-
-		case []byte:
-			tv.Value = append(tv.Value, v...)
-
-		case string:
-			tv.Value = append(tv.Value, []byte(v)...)
-
-		case uint16:
-			tv.Value = binary.BigEndian.AppendUint16(tv.Value, v)
-		case uint32:
-			tv.Value = binary.BigEndian.AppendUint32(tv.Value, v)
-		case uint64:
-			tv.Value = binary.BigEndian.AppendUint64(tv.Value, v)
-
-		case TagValue:
-			tv.Children = append(tv.Children, v)
-		case TagValues:
-			tv.Children = append(tv.Children, v...)
-		}
+		tv.Append(value)
 	}
 
 	return tv
+}
+
+func (tv *TagValue) Append(value any) {
+	switch v := value.(type) {
+	case encoding.BinaryMarshaler:
+		data, err := v.MarshalBinary()
+		if err != nil {
+			panic("failed to marshal")
+		}
+
+		tv.Value = append(tv.Value, data...)
+
+	case byte:
+		tv.Value = append(tv.Value, v)
+
+	case []byte:
+		tv.Value = append(tv.Value, v...)
+
+	case string:
+		tv.Value = append(tv.Value, []byte(v)...)
+
+	case uint16:
+		tv.Value = binary.BigEndian.AppendUint16(tv.Value, v)
+	case uint32:
+		tv.Value = binary.BigEndian.AppendUint32(tv.Value, v)
+	case uint64:
+		tv.Value = binary.BigEndian.AppendUint64(tv.Value, v)
+
+	case TagValue:
+		tv.Children = append(tv.Children, v)
+	case TagValues:
+		tv.Children = append(tv.Children, v...)
+	}
 }
 
 type TagValues []TagValue
