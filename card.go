@@ -11,6 +11,10 @@ type ResettableCard interface {
 	Reset() error
 }
 
+type MetadataCard interface {
+	Metadata() map[string]string
+}
+
 type PCSCCard interface {
 	Transmit([]byte) ([]byte, error)
 	BeginTransaction() error
