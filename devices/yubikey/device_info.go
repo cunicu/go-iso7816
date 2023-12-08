@@ -185,8 +185,8 @@ func (di *DeviceInfo) Unmarshal(b []byte) error {
 }
 
 // GetDeviceInfo returns device information about the YubiKey token.
-func GetDeviceInfo(c *iso.Card) (*DeviceInfo, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetDeviceInfo(card *iso.Card) (*DeviceInfo, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins: 0x1D,
 		P1:  0x00,
 		P2:  0x00,

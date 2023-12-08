@@ -70,8 +70,8 @@ func (ds *DeviceStatus) Unmarshal(b []byte) error {
 }
 
 // GetDeviceStatus returns the device status of the Nitrokey 3 token.
-func GetDeviceStatus(c *iso.Card) (*DeviceStatus, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetDeviceStatus(card *iso.Card) (*DeviceStatus, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins:  iso.Instruction(InsAdminGetStatus),
 		P1:   0x00,
 		P2:   0x00,
@@ -91,8 +91,8 @@ func GetDeviceStatus(c *iso.Card) (*DeviceStatus, error) {
 }
 
 // GetUUID returns the UUID of the Nitrokey 3 token.
-func GetUUID(c *iso.Card) ([]byte, error) {
-	return c.Send(&iso.CAPDU{
+func GetUUID(card *iso.Card) ([]byte, error) {
+	return card.Send(&iso.CAPDU{
 		Ins: InsGetUUID,
 		P1:  0x00,
 		P2:  0x00,
@@ -101,8 +101,8 @@ func GetUUID(c *iso.Card) ([]byte, error) {
 }
 
 // GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
-func GetFirmwareVersion(c *iso.Card) (*iso.Version, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetFirmwareVersion(card *iso.Card) (*iso.Version, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins:  InsGetFirmwareVersion,
 		P1:   0x00,
 		P2:   0x00,
@@ -128,18 +128,18 @@ func GetFirmwareVersion(c *iso.Card) (*iso.Version, error) {
 	}, nil
 }
 
-func Metadata(c *iso.Card) (meta map[string]any) {
-	if _, err := c.Select(iso.AidSolokeysAdmin); err != nil {
+func Metadata(card *iso.Card) (meta map[string]any) {
+	if _, err := card.Select(iso.AidSolokeysAdmin); err != nil {
 		return nil
 	}
 
 	meta = map[string]any{}
 
-	if v, err := GetFirmwareVersion(c); err == nil {
+	if v, err := GetFirmwareVersion(card); err == nil {
 		meta["version"] = v
 	}
 
-	if id, err := GetUUID(c); err == nil {
+	if id, err := GetUUID(card); err == nil {
 		meta["uuid"] = id
 	}
 
