@@ -9,6 +9,7 @@ import (
 	"github.com/ebfe/scard"
 
 	"cunicu.li/go-iso7816"
+	"cunicu.li/go-iso7816/devices/nitrokey"
 	"cunicu.li/go-iso7816/devices/yubikey"
 )
 
@@ -117,17 +118,34 @@ func (c *Card) Metadata() (meta map[string]string) {
 	}
 
 	ic := iso7816.NewCard(c)
-	for k, v := range yubikey.Metadata(ic) {
-		meta["yk."+k] = v
+
+	metadatas := map[string]func(*iso7816.Card) map[string]any{
+		"yubikey":  yubikey.Metadata,
+		"nitrokey": nitrokey.Metadata,
+	}
+
+	for prefix, metadata := range metadatas {
+		for key, value := range metadata(ic) {
+			var strValue string
+
+			switch value := value.(type) {
+			case []byte:
+				strValue = hex.EncodeToString(value)
+			default:
+				strValue = fmt.Sprint(value)
+			}
+
+			meta[prefix+"."+key] = strValue
+		}
 	}
 
 	return meta
 }
 
-func bitsToString[E comparable](v E, m map[E]string) string {
+func bitsToString[E ~uint32](v E, m map[E]string) string {
 	vs := []string{}
 	for m, s := range m {
-		if v == m {
+		if v&m != 0 {
 			vs = append(vs, s)
 		}
 	}

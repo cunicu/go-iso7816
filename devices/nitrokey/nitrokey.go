@@ -8,15 +8,15 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"cunicu.li/go-iso7816"
+	iso "cunicu.li/go-iso7816"
 )
 
 var ErrInvalidLength = errors.New("invalid length")
 
 const (
 	// https://github.com/Nitrokey/admin-app/blob/main/src/admin.rs
-	InsGetFirmwareVersion iso7816.Instruction = 0x61
-	InsGetUUID            iso7816.Instruction = 0x62
+	InsGetFirmwareVersion iso.Instruction = 0x61
+	InsGetUUID            iso.Instruction = 0x62
 	InsAdmin
 
 	InsAdminGetStatus byte = 0x80
@@ -70,9 +70,9 @@ func (ds *DeviceStatus) Unmarshal(b []byte) error {
 }
 
 // GetDeviceStatus returns the device status of the Nitrokey 3 token.
-func GetDeviceStatus(c *iso7816.Card) (*DeviceStatus, error) {
-	resp, err := c.Send(&iso7816.CAPDU{
-		Ins:  iso7816.Instruction(InsAdminGetStatus),
+func GetDeviceStatus(c *iso.Card) (*DeviceStatus, error) {
+	resp, err := c.Send(&iso.CAPDU{
+		Ins:  iso.Instruction(InsAdminGetStatus),
 		P1:   0x00,
 		P2:   0x00,
 		Data: []byte{InsAdminGetStatus},
@@ -91,8 +91,8 @@ func GetDeviceStatus(c *iso7816.Card) (*DeviceStatus, error) {
 }
 
 // GetUUID returns the UUID of the Nitrokey 3 token.
-func GetUUID(c *iso7816.Card) ([]byte, error) {
-	return c.Send(&iso7816.CAPDU{
+func GetUUID(c *iso.Card) ([]byte, error) {
+	return c.Send(&iso.CAPDU{
 		Ins: InsGetUUID,
 		P1:  0x00,
 		P2:  0x00,
@@ -101,8 +101,8 @@ func GetUUID(c *iso7816.Card) ([]byte, error) {
 }
 
 // GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
-func GetFirmwareVersion(c *iso7816.Card) (*iso7816.Version, error) {
-	resp, err := c.Send(&iso7816.CAPDU{
+func GetFirmwareVersion(c *iso.Card) (*iso.Version, error) {
+	resp, err := c.Send(&iso.CAPDU{
 		Ins:  InsGetFirmwareVersion,
 		P1:   0x00,
 		P2:   0x00,
@@ -121,9 +121,27 @@ func GetFirmwareVersion(c *iso7816.Card) (*iso7816.Version, error) {
 
 	// This is the reverse of the calculation in runners/lpc55/build.rs (CARGO_PKG_VERSION):
 	// https://github.com/Nitrokey/nitrokey-3-firmware/blob/main/runners/lpc55/build.rs#L131
-	return &iso7816.Version{
+	return &iso.Version{
 		Major: int(version >> 22),
 		Minor: int((version >> 6) & ((1 << 16) - 1)),
 		Patch: int(version & ((1 << 6) - 1)),
 	}, nil
+}
+
+func Metadata(c *iso.Card) (meta map[string]any) {
+	if _, err := c.Select(iso.AidSolokeysAdmin); err != nil {
+		return nil
+	}
+
+	meta = map[string]any{}
+
+	if v, err := GetFirmwareVersion(c); err == nil {
+		meta["version"] = v
+	}
+
+	if id, err := GetUUID(c); err == nil {
+		meta["uuid"] = id
+	}
+
+	return meta
 }
