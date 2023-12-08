@@ -1,3 +1,16 @@
-# Mockfile/v1 created=2023-11-01T21:42:22+01:00
-on Transmit 00a4040007a0000005272001 040307010500060f00009000
-on Transmit 00011000 006cb7d69000
+mockfile
+
+file.version v2
+file.created 2023-12-08T10:41:51+01:00
+file.creator stv0g@cam.local
+
+meta status.active_protocol t1
+meta status.atr 3bf81300008131fe15597562696b657934d4
+meta status.reader Yubico Yubikey 4 OTP+U2F+CCID
+meta status.state 
+meta yk.serial 7124950
+meta yk.version 4.3.7
+
+#     start      end method
+on    0.000    0.000 Transmit 00a4040007a0000005272001 040307010500060f00009000
+on    1.235    1.235 Transmit 00011000 006cb7d69000
