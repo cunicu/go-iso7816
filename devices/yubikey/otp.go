@@ -6,7 +6,6 @@ package yubikey
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 
 	iso "cunicu.li/go-iso7816"
 )
@@ -88,19 +87,19 @@ func GetFIPSMode(c *iso.Card) (bool, error) {
 	return resp[0] != 0, nil
 }
 
-func Metadata(c *iso.Card) (meta map[string]string) {
+func Metadata(c *iso.Card) (meta map[string]any) {
 	if _, err := c.Select(iso.AidYubicoOTP); err != nil {
 		return nil
 	}
 
-	meta = map[string]string{}
+	meta = map[string]any{}
 
 	if sts, err := GetStatus(c); err == nil {
-		meta["version"] = sts.Version.String()
+		meta["version"] = sts.Version
 	}
 
 	if sno, err := GetSerialNumber(c); err == nil {
-		meta["serial"] = fmt.Sprint(sno)
+		meta["serial"] = sno
 	}
 
 	return meta

@@ -1,14 +1,16 @@
 mockfile
 
 file.version v2
-file.created 2023-12-08T10:55:45+01:00
+file.created 2023-12-08T11:22:37+01:00
 file.creator stv0g@cam.local
 
+meta nitrokey.uuid faabf284f9848452874c8f810eb04be0
+meta nitrokey.version 1.5.0
 meta status.active_protocol t1
 meta status.atr 3b8f01805d4e6974726f6b657900000000006a
 meta status.reader Nitrokey Nitrokey 3
-meta status.state 
+meta status.state present,powered,specific
 
 #     start      end method
 on    0.000    0.000 Transmit 00a4040009a00000084700000001 9000
-on    2.237    2.237 Transmit 00800000018005 002a01d8019000
+on    2.209    2.209 Transmit 00800000018005 002a01d8019000
