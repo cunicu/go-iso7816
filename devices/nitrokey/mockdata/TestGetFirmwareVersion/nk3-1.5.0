@@ -1,3 +1,14 @@
-# Mockfile/v1 created=2023-11-01T22:04:27+01:00
-on Transmit 00a4040009a00000084700000001 9000
-on Transmit 00610000010104 004001409000
+mockfile
+
+file.version v2
+file.created 2023-12-08T10:55:45+01:00
+file.creator stv0g@cam.local
+
+meta status.active_protocol t1
+meta status.atr 3b8f01805d4e6974726f6b657900000000006a
+meta status.reader Nitrokey Nitrokey 3
+meta status.state 
+
+#     start      end method
+on    0.000    0.000 Transmit 00a4040009a00000084700000001 9000
+on    2.282    2.282 Transmit 00610000010104 004001409000
