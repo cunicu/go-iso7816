@@ -21,6 +21,8 @@ import (
 	iso "cunicu.li/go-iso7816"
 )
 
+var ErrMalformedMockfile = fmt.Errorf("invalid mockfile")
+
 var _ iso.PCSCCard = (*MockCard)(nil)
 
 type call struct {
@@ -157,6 +159,12 @@ func (c *MockCard) LoadTranscript() error {
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
 
+	if !scanner.Scan() {
+		return ErrMalformedMockfile
+	} else if firstLine := scanner.Text(); firstLine != "mockfile" {
+		return fmt.Errorf("%w: invalid first file: %s", ErrMalformedMockfile, firstLine)
+	}
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		cols := splitColumns(line)
@@ -231,13 +239,16 @@ func (c *MockCard) WriteTranscript() error {
 	}
 	defer f.Close()
 
-	fmt.Fprintln(f, "# Mockfile")
+	fmt.Fprintln(f, "mockfile")
+	fmt.Fprintln(f)
 	fmt.Fprintln(f, "file.version", "v2")
 	fmt.Fprintln(f, "file.created", time.Now().Format(time.RFC3339))
 
 	if hostname, err := os.Hostname(); err == nil {
 		fmt.Fprintln(f, "file.creator", fmt.Sprintf("%s@%s", os.Getenv("USER"), hostname))
 	}
+
+	fmt.Fprintln(f)
 
 	if mc, ok := c.next.(iso.MetadataCard); ok {
 		forEachSorted(mc.Metadata(), func(key, value string) {
