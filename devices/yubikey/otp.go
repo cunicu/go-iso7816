@@ -33,8 +33,8 @@ func (s *Status) Unmarshal(b []byte) error {
 }
 
 // GetStatus returns the status of the YubiKey token.
-func GetStatus(c *iso.Card) (*Status, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetStatus(card *iso.Card) (*Status, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins: InsReadStatus,
 		P1:  0x00,
 		P2:  0x00,
@@ -52,8 +52,8 @@ func GetStatus(c *iso.Card) (*Status, error) {
 }
 
 // GetSerialNumber returns the serial number of the YubiKey token.
-func GetSerialNumber(c *iso.Card) (uint32, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetSerialNumber(card *iso.Card) (uint32, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins: InsOTP,
 		P1:  0x10,
 		P2:  0x00,
@@ -70,8 +70,8 @@ func GetSerialNumber(c *iso.Card) (uint32, error) {
 }
 
 // GetFIPSMode returns returns the FIPS compliancy state of the YubiKey token.
-func GetFIPSMode(c *iso.Card) (bool, error) {
-	resp, err := c.Send(&iso.CAPDU{
+func GetFIPSMode(card *iso.Card) (bool, error) {
+	resp, err := card.Send(&iso.CAPDU{
 		Ins: InsOTP,
 		P1:  0x14,
 		P2:  0x00,
@@ -87,18 +87,18 @@ func GetFIPSMode(c *iso.Card) (bool, error) {
 	return resp[0] != 0, nil
 }
 
-func Metadata(c *iso.Card) (meta map[string]any) {
-	if _, err := c.Select(iso.AidYubicoOTP); err != nil {
+func Metadata(card *iso.Card) (meta map[string]any) {
+	if _, err := card.Select(iso.AidYubicoOTP); err != nil {
 		return nil
 	}
 
 	meta = map[string]any{}
 
-	if sts, err := GetStatus(c); err == nil {
+	if sts, err := GetStatus(card); err == nil {
 		meta["version"] = sts.Version
 	}
 
-	if sno, err := GetSerialNumber(c); err == nil {
+	if sno, err := GetSerialNumber(card); err == nil {
 		meta["serial"] = sno
 	}
 

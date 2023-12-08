@@ -7,9 +7,9 @@ import iso "cunicu.li/go-iso7816"
 
 // And matches if all of the provided filters are matching.
 func And(fs ...Filter) Filter {
-	return func(n string, c *iso.Card) (bool, error) {
+	return func(reader string, card *iso.Card) (bool, error) {
 		for _, f := range fs {
-			if r, err := f(n, c); err != nil {
+			if r, err := f(reader, card); err != nil {
 				return false, err
 			} else if !r {
 				return false, nil
@@ -22,9 +22,9 @@ func And(fs ...Filter) Filter {
 
 // Or matches if any of the provided filters are matching.
 func Or(fs ...Filter) Filter {
-	return func(n string, c *iso.Card) (bool, error) {
+	return func(reader string, card *iso.Card) (bool, error) {
 		for _, f := range fs {
-			if r, err := f(n, c); err != nil {
+			if r, err := f(reader, card); err != nil {
 				return false, err
 			} else if r {
 				return true, nil
@@ -37,8 +37,8 @@ func Or(fs ...Filter) Filter {
 
 // Not matches if the provided filters does not match.
 func Not(f Filter) Filter {
-	return func(n string, c *iso.Card) (bool, error) {
-		r, err := f(n, c)
+	return func(reader string, card *iso.Card) (bool, error) {
+		r, err := f(reader, card)
 		if err != nil {
 			return false, err
 		}
