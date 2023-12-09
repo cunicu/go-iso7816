@@ -205,11 +205,11 @@ func (c *MockCard) LoadTranscript() error {
 				return fmt.Errorf("failed to decode response: %w", err)
 			}
 
-			c.Mock.On(method, cmd).
+			call = c.Mock.On(method, cmd).
 				Return(resp, nil)
 
 		case "BeginTransaction", "EndTransaction":
-			c.Mock.On(method).
+			call = c.Mock.On(method).
 				Return(nil)
 		}
 
