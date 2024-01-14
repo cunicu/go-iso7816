@@ -4,6 +4,7 @@
 package pcsc
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -48,23 +49,23 @@ func (c *Card) Metadata() (meta map[string]string) {
 	}
 
 	if data, err := c.GetAttrib(scard.AttrVendorName); err == nil {
-		meta["attr.name.vendor"] = string(data)
+		meta["attr.name.vendor"] = bytesToString(data)
 	}
 
 	if data, err := c.GetAttrib(scard.AttrDeviceSystemName); err == nil {
-		meta["attr.name.system"] = string(data)
+		meta["attr.name.system"] = bytesToString(data)
 	}
 
 	if data, err := c.GetAttrib(scard.AttrDeviceFriendlyName); err == nil {
-		meta["attr.name.friendly"] = string(data)
+		meta["attr.name.friendly"] = bytesToString(data)
 	}
 
 	if data, err := c.GetAttrib(scard.AttrVendorIfdSerialNo); err == nil {
-		meta["attr.ifd.serial"] = string(data)
+		meta["attr.ifd.serial"] = bytesToString(data)
 	}
 
 	if data, err := c.GetAttrib(scard.AttrVendorIfdType); err == nil {
-		meta["attr.ifd.type"] = string(data)
+		meta["attr.ifd.type"] = bytesToString(data)
 	}
 
 	if data, err := c.GetAttrib(scard.AttrVendorIfdVersion); err == nil && len(data) == 4 {
@@ -143,6 +144,11 @@ func (c *Card) Metadata() (meta map[string]string) {
 	}
 
 	return meta
+}
+
+func bytesToString(data []byte) string {
+	data = bytes.Trim(data, "\x00")
+	return string(data)
 }
 
 func bitsToString[E ~uint32](v E, m map[E]string) string {
