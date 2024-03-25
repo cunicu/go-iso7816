@@ -21,7 +21,7 @@
             [
               pkg-config
               clang
-              go_1_21
+              go_1_22
               golangci-lint
               reuse
             ]
