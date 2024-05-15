@@ -4,6 +4,7 @@
 package nitrokey_test
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/google/uuid"
@@ -29,6 +30,46 @@ func TestGetUUID(t *testing.T) {
 		require.NoError(err)
 
 		t.Logf("UUID: %s", uid)
+	})
+}
+
+func TestGetRandom(t *testing.T) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+		require := require.New(t)
+
+		_, err := card.Select(iso.AidSolokeysAdmin)
+		require.NoError(err)
+
+		rand, err := nk.GetRandom(card)
+		require.NoError(err)
+		require.Len(rand, nk.LenRandom)
+
+		t.Logf("Random: %s", hex.EncodeToString(rand))
+	})
+}
+
+func TestReboot(t *testing.T) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+		require := require.New(t)
+
+		_, err := card.Select(iso.AidSolokeysAdmin)
+		require.NoError(err)
+
+		err = nk.Reboot(card)
+		require.NoError(err)
+	})
+}
+
+func TestIsLocked(t *testing.T) {
+	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+		require := require.New(t)
+
+		_, err := card.Select(iso.AidSolokeysAdmin)
+		require.NoError(err)
+
+		locked, err := nk.IsLocked(card)
+		require.NoError(err)
+		require.True(locked)
 	})
 }
 

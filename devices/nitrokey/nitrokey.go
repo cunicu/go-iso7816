@@ -7,22 +7,34 @@ package nitrokey
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 
 	iso "cunicu.li/go-iso7816"
+	"github.com/ebfe/scard"
 )
 
 var ErrInvalidLength = errors.New("invalid length")
 
 const (
+	LenRandom  = 57
+	LenVersion = 4
+)
+
+const (
 	// https://github.com/Nitrokey/admin-app/blob/main/src/admin.rs
+	InsUpdate             iso.Instruction = 0x51
+	InsReboot             iso.Instruction = 0x53
+	InsRNG                iso.Instruction = 0x60
 	InsGetFirmwareVersion iso.Instruction = 0x61
 	InsGetUUID            iso.Instruction = 0x62
-	InsAdmin
+	InsLocked             iso.Instruction = 0x63
 
-	InsAdminGetStatus byte = 0x80
-	InsAdminTestSE050 byte = 0x81
-	InsAdminGetConfig byte = 0x82
-	InsAdminSetConfig byte = 0x83
+	InsAdminStatus          byte = 0x80
+	InsAdminTestSE050       byte = 0x81
+	InsAdminGetConfig       byte = 0x82
+	InsAdminSetConfig       byte = 0x83
+	InsAdminFactoryReset    byte = 0x84
+	InsAdminFactoryResetApp byte = 0x85
 )
 
 // https://github.com/Nitrokey/pynitrokey/blob/781d4b9e3e9fc3cfc297611d31e7e43643547ac8/pynitrokey/nk3/admin_app.py#L20
@@ -72,10 +84,10 @@ func (ds *DeviceStatus) Unmarshal(b []byte) error {
 // GetDeviceStatus returns the device status of the Nitrokey 3 token.
 func GetDeviceStatus(card *iso.Card) (*DeviceStatus, error) {
 	resp, err := card.Send(&iso.CAPDU{
-		Ins:  iso.Instruction(InsAdminGetStatus),
+		Ins:  iso.Instruction(InsAdminStatus),
 		P1:   0x00,
 		P2:   0x00,
-		Data: []byte{InsAdminGetStatus},
+		Data: []byte{InsAdminStatus},
 		Ne:   0x05,
 	})
 	if err != nil {
@@ -107,7 +119,7 @@ func GetFirmwareVersion(card *iso.Card) (*iso.Version, error) {
 		P1:   0x00,
 		P2:   0x00,
 		Data: []byte{0x01},
-		Ne:   0x04,
+		Ne:   LenVersion,
 	})
 	if err != nil {
 		return nil, err
@@ -126,6 +138,46 @@ func GetFirmwareVersion(card *iso.Card) (*iso.Version, error) {
 		Minor: int((version >> 6) & ((1 << 16) - 1)),
 		Patch: int(version & ((1 << 6) - 1)),
 	}, nil
+}
+
+// GetRandom returns LenRandom bytes of random bytes.
+func GetRandom(card *iso.Card) ([]byte, error) {
+	return card.Send(&iso.CAPDU{
+		Ins: InsRNG,
+		Ne:  LenRandom,
+	})
+}
+
+// Reboot resets the token.
+func Reboot(card *iso.Card) error {
+	_, err := card.Send(&iso.CAPDU{Ins: InsReboot})
+	if !errors.Is(err, scard.ErrReaderUnavailable) {
+		return fmt.Errorf("unexpected error: %w", err)
+	}
+
+	if rcard, ok := card.Base().(iso.ReconnectableCard); ok {
+		if err := rcard.Reconnect(false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// IsLocked checks if the bootloader is locked.
+// Locked bootloaders can only be updated via officially signed firmware images.
+func IsLocked(card *iso.Card) (bool, error) {
+	resp, err := card.Send(&iso.CAPDU{
+		Ins: InsLocked,
+		Ne:  1,
+	})
+	if err != nil {
+		return false, err
+	} else if len(resp) != 1 {
+		return false, iso.ErrWrongLength
+	}
+
+	return resp[0] == 1, nil
 }
 
 func Metadata(card *iso.Card) (meta map[string]any) {
