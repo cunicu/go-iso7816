@@ -16,7 +16,7 @@ import (
 // HasAttribute uses the PCSC API SCardGetAttrib to
 // check if the card has given attribute
 func HasAttribute(attr scard.Attrib, value []byte) filter.Filter {
-	return func(reader string, card *iso7816.Card) (bool, error) {
+	return func(_ string, card *iso7816.Card) (bool, error) {
 		if card == nil {
 			return false, filter.ErrOpen
 		}

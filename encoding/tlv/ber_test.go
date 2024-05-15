@@ -112,7 +112,7 @@ func TestEncodeBEREmpty(t *testing.T) {
 }
 
 func FuzzBER(f *testing.F) {
-	f.Fuzz(func(t *testing.T, buf []byte) {
+	f.Fuzz(func(_ *testing.T, buf []byte) {
 		tlv.DecodeBER(buf) //nolint:errcheck
 	})
 }

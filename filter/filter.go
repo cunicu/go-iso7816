@@ -40,7 +40,7 @@ var None Filter = func(string, *iso.Card) (bool, error) {
 // HasApplet matches card which can select an applet
 // with the given application identifier (AID).
 func HasApplet(aid []byte) Filter {
-	return func(reader string, card *iso.Card) (bool, error) {
+	return func(_ string, card *iso.Card) (bool, error) {
 		if card == nil {
 			return false, ErrOpen
 		}

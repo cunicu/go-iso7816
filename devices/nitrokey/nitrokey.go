@@ -9,8 +9,9 @@ import (
 	"errors"
 	"fmt"
 
-	iso "cunicu.li/go-iso7816"
 	"github.com/ebfe/scard"
+
+	iso "cunicu.li/go-iso7816"
 )
 
 var ErrInvalidLength = errors.New("invalid length")
