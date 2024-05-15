@@ -43,3 +43,9 @@ func IsNitrokey(reader string, card *iso.Card) (bool, error) {
 func IsNitrokey3(reader string, card *iso.Card) (bool, error) {
 	return HasNameRegex("Nitrokey 3")(reader, card)
 }
+
+// IsFeitian checks if the smart card is a FEITIAN key
+// based on the name of the smart card reader.
+func IsFeitian(n string, c *iso.Card) (bool, error) {
+	return HasNameRegex("^FT")(n, c)
+}

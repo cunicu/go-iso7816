@@ -63,4 +63,7 @@ var (
 	AidSolokeysProvisioner = concat(RidSolokeys[:], 0x01, 0x00, 0x00, 0x01)
 	AidCardManager         = concat(RidGlobalPlatform[:], 0x00, 0x00, 0x00)
 	AidNDEF                = concat(RidNXPNFC[:], 0x01, 0x01)
+
+	// Feitian seems to use an unregistered RID?
+	AidFeitianOTP = []byte{0xD1, 0x56, 0x00, 0x01, 0x32, 0x83, 0x26, 0x01, 0x01}
 )
