@@ -105,12 +105,21 @@ func GetDeviceStatus(card *iso.Card) (*DeviceStatus, error) {
 
 // GetUUID returns the UUID of the Nitrokey 3 token.
 func GetUUID(card *iso.Card) ([]byte, error) {
-	return card.Send(&iso.CAPDU{
+	resp, err := card.Send(&iso.CAPDU{
 		Ins: InsGetUUID,
 		P1:  0x00,
 		P2:  0x00,
 		Ne:  0x10,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resp) != 16 {
+		return nil, iso.ErrWrongLength
+	}
+
+	return resp, nil
 }
 
 // GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
