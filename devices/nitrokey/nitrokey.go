@@ -157,10 +157,12 @@ func Reboot(card *iso.Card) error {
 	}
 
 	// Rebooting, detaches the card reader briefly which
-	// requires reenumerating/reconnecting.
-	if rcard, ok := card.Base().(iso.ReconnectableCard); ok {
-		if err := rcard.Reconnect(false); err != nil {
-			return err
+	// requires re-enumerating/reconnecting.
+	if pcscCard := card.Base(); pcscCard != nil {
+		if rcard, ok := pcscCard.(iso.ReconnectableCard); ok {
+			if err := rcard.Reconnect(false); err != nil {
+				return err
+			}
 		}
 	}
 
