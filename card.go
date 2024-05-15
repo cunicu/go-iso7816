@@ -45,6 +45,7 @@ func (c *Card) Select(aid []byte) (respBuf []byte, err error) {
 		P1:   0x04,
 		P2:   0x00,
 		Data: aid,
+		Ne:   MaxLenRespDataStandard,
 	})
 }
 
