@@ -70,7 +70,7 @@ func TestEncodeSimpleEmpty(t *testing.T) {
 }
 
 func FuzzSimple(f *testing.F) {
-	f.Fuzz(func(t *testing.T, buf []byte) {
+	f.Fuzz(func(_ *testing.T, buf []byte) {
 		tlv.DecodeSimple(buf) //nolint:errcheck
 	})
 }

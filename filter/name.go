@@ -12,7 +12,7 @@ import (
 // HasName compares the name of the smart card reader
 // with the provided name.
 func HasName(nameExpected string) Filter {
-	return func(reader string, ccard *iso.Card) (bool, error) {
+	return func(reader string, _ *iso.Card) (bool, error) {
 		return reader == nameExpected, nil
 	}
 }
@@ -21,7 +21,7 @@ func HasName(nameExpected string) Filter {
 // against the provided regular expression.
 func HasNameRegex(regex string) Filter {
 	re := regexp.MustCompile(regex)
-	return func(reader string, card *iso.Card) (bool, error) {
+	return func(reader string, _ *iso.Card) (bool, error) {
 		return re.MatchString(reader), nil
 	}
 }

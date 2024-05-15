@@ -71,7 +71,7 @@ func TestEncodeCompactEmpty(t *testing.T) {
 }
 
 func FuzzCompact(f *testing.F) {
-	f.Fuzz(func(t *testing.T, buf []byte) {
+	f.Fuzz(func(_ *testing.T, buf []byte) {
 		tlv.DecodeCompact(buf) //nolint:errcheck
 	})
 }
