@@ -14,9 +14,9 @@ on:
 jobs:
   build:
     name: Build
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -41,7 +41,7 @@ jobs:
       if: matrix.os != 'windows-latest'
       uses: golangci/golangci-lint-action@v6
       with:
-        version: v1.54.0
+        version: v1.58.1
 
     - name: Set up gotestfmt
       run: go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
