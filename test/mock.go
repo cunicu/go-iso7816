@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ebfe/scard"
 	"github.com/stretchr/testify/mock"
 
 	iso "cunicu.li/go-iso7816"
@@ -82,6 +83,12 @@ func (c *MockCard) Close() error {
 	return nil
 }
 
+// Base returns the underlying smart card.
+// We need to overload this as c.PCSCard can be nil
+func (c *MockCard) Base() iso.PCSCCard {
+	return c.PCSCCard
+}
+
 func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 	if c.PCSCCard != nil {
 		start := time.Now()
@@ -98,7 +105,12 @@ func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 	} else {
 		args := c.Mock.MethodCalled("Transmit", cmd)
 
-		resp = args.Get(0).([]byte) //nolint:forcetypeassert
+		switch r := args.Get(0).(type) {
+		case nil:
+			resp = nil
+		case []byte:
+			resp = r
+		}
 		err = args.Error(1)
 	}
 
@@ -200,13 +212,18 @@ func (c *MockCard) LoadTranscript() error {
 				return fmt.Errorf("failed to decode command: %w", err)
 			}
 
-			resp, err := hex.DecodeString(args[1])
-			if err != nil {
-				return fmt.Errorf("failed to decode response: %w", err)
-			}
+			call = c.Mock.On(method, cmd)
 
-			call = c.Mock.On(method, cmd).
-				Return(resp, nil)
+			if len(args) > 1 {
+				resp, err := hex.DecodeString(args[1])
+				if err != nil {
+					return fmt.Errorf("failed to decode response: %w", err)
+				}
+
+				call = call.Return(resp, nil)
+			} else {
+				call = call.Return(nil, scard.ErrReaderUnavailable)
+			}
 
 		case "BeginTransaction", "EndTransaction":
 			call = c.Mock.On(method).
