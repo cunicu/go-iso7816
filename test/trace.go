@@ -5,7 +5,6 @@ package test
 
 import (
 	"encoding/hex"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -48,15 +47,16 @@ func (c *TraceCard) Transmit(cmd []byte) ([]byte, error) {
 	end := time.Now()
 
 	args := []any{
-		slog.String("resp", hex.EncodeToString(resp)),
-		slog.Int("len", len(resp)),
 		slog.Duration("after", end.Sub(start)),
 	}
 
 	if err == nil {
+		args = append(args,
+			slog.Int("len", len(resp)),
+			slog.String("resp", hex.EncodeToString(resp)))
 		c.logger.Info("Recv <-", args...)
 	} else {
-		args = append(args, slog.String("code", fmt.Sprintf("%x", err)))
+		args = append(args, slog.Any("error", err))
 		c.logger.Error("Recv <-", args...)
 	}
 
