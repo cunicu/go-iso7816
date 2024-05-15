@@ -1,16 +1,24 @@
 mockfile
 
 file.version v2
-file.created 2023-12-08T10:41:51+01:00
-file.creator stv0g@cam.local
+file.created 2024-05-15T16:11:20+02:00
+file.creator stv0g@cam-vm
 
-meta status.active_protocol t1
+meta attr.channel.type usb
+meta attr.channel.usb.addr 5
+meta attr.channel.usb.bus 2
+meta attr.ifd.serial 
+meta attr.ifd.version 4.55.0
+meta attr.name.friendly Yubico YubiKey OTP+FIDO+CCID 00 00
+meta attr.name.system Yubico YubiKey OTP+FIDO+CCID 00 00
+meta attr.name.vendor Yubico
+meta status.active_protocol t1,any
 meta status.atr 3bf81300008131fe15597562696b657934d4
-meta status.reader Yubico Yubikey 4 OTP+U2F+CCID
-meta status.state present,powered,specific
+meta status.reader Yubico YubiKey OTP+FIDO+CCID 00 00
+meta status.state present,powered,negotiable
 meta yubikey.serial 7124950
 meta yubikey.version 4.3.7
 
 #     start      end method
-on    0.000    0.000 Transmit 00a4040008a000000527471117 5669727475616c206d6772202d2046572076657273696f6e20342e332e379000
-on    1.239    1.239 Transmit 001d0000 0c0101ff0204006cb7d603013f9000
+on    0.000    0.000 Transmit 00a4040008a00000052747111700 5669727475616c206d6772202d2046572076657273696f6e20342e332e379000
+on    1.312    1.312 Transmit 001d0000 0c0101ff0204006cb7d603013f9000
