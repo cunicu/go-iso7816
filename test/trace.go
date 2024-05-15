@@ -18,8 +18,8 @@ var _ iso.PCSCCard = (*TraceCard)(nil)
 // which logs a exchanged commands (APDUs) to a log/slog
 // logger.
 type TraceCard struct {
+	iso.PCSCCard
 	logger *slog.Logger
-	next   iso.PCSCCard
 }
 
 // NewTraceCard wraps a iso7816.PCSCCard into a TraceCard
@@ -31,8 +31,8 @@ func NewTraceCard(next iso.PCSCCard, logger *slog.Logger) *TraceCard {
 	}
 
 	return &TraceCard{
-		logger: logger,
-		next:   next,
+		PCSCCard: next,
+		logger:   logger,
 	}
 }
 
@@ -43,7 +43,7 @@ func (c *TraceCard) Transmit(cmd []byte) ([]byte, error) {
 
 	start := time.Now()
 
-	resp, err := c.next.Transmit(cmd)
+	resp, err := c.PCSCCard.Transmit(cmd)
 
 	end := time.Now()
 
@@ -66,13 +66,13 @@ func (c *TraceCard) Transmit(cmd []byte) ([]byte, error) {
 func (c *TraceCard) BeginTransaction() error {
 	c.logger.Info("BeginTransaction")
 
-	return c.next.BeginTransaction()
+	return c.PCSCCard.BeginTransaction()
 }
 
 func (c *TraceCard) EndTransaction() error {
 	c.logger.Info("EndTransaction")
 
-	return c.next.EndTransaction()
+	return c.PCSCCard.EndTransaction()
 }
 
 func (c *TraceCard) Close() error {

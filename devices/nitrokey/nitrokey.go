@@ -155,6 +155,8 @@ func Reboot(card *iso.Card) error {
 		return fmt.Errorf("unexpected error: %w", err)
 	}
 
+	// Rebooting, detaches the card reader briefly which
+	// requires reenumerating/reconnecting.
 	if rcard, ok := card.Base().(iso.ReconnectableCard); ok {
 		if err := rcard.Reconnect(false); err != nil {
 			return err

@@ -4,7 +4,9 @@
 package pcsc
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ebfe/scard"
 
@@ -17,6 +19,10 @@ var _ iso.PCSCCard = (*Card)(nil)
 // via github.com/ebfe/scard.
 type Card struct {
 	*scard.Card
+
+	ctx    *scard.Context
+	reader string
+	mode   scard.ShareMode
 }
 
 // NewCard creates a new card by connecting via the PC/SC API.
@@ -31,7 +37,11 @@ func NewCard(ctx *scard.Context, reader string, shared bool) (*iso.Card, error) 
 		return nil, fmt.Errorf("failed to connect to reader: %w", err)
 	}
 
-	return iso.NewCard(&Card{sc}), nil
+	return iso.NewCard(&Card{sc, ctx, reader, mode}), nil
+}
+
+func (c *Card) Base() iso.PCSCCard {
+	return c
 }
 
 // Transmit wraps SCardTransmit.
@@ -55,6 +65,18 @@ func (c *Card) Close() error {
 }
 
 // Reset reconnects and resets the card
-func (c *Card) Reset() error {
-	return c.Card.Reconnect(scard.ShareShared, scard.ProtocolT1, scard.ResetCard)
+func (c *Card) Reconnect(reset bool) (err error) {
+	if reset {
+		return c.Card.Reconnect(scard.ShareShared, scard.ProtocolT1, scard.ResetCard)
+	}
+
+	for {
+		if c.Card, err = c.ctx.Connect(c.reader, c.mode, scard.ProtocolAny); err == nil {
+			return nil
+		} else if errors.Is(err, scard.ErrUnknownReader) || errors.Is(err, scard.ErrNoSmartcard) {
+			time.Sleep(100 * time.Millisecond)
+		} else {
+			return err
+		}
+	}
 }

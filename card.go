@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-type ResettableCard interface {
-	Reset() error
+type ReconnectableCard interface {
+	Reconnect(reset bool) error
 }
 
 type MetadataCard interface {
@@ -20,6 +20,7 @@ type PCSCCard interface {
 	BeginTransaction() error
 	EndTransaction() error
 	Close() error
+	Base() PCSCCard
 }
 
 type Card struct {

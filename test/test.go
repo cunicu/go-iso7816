@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	ErrFailedToCastCard  = errors.New("failed to cast card")
+	ErrFailedToGetCard   = errors.New("failed to get physical card")
 	ErrCardNotResettable = errors.New("card not resettable")
 )
 
@@ -108,38 +108,17 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 	}
 }
 
-// PCSCCard unwraps a card which has been passed to the callback of WithCard().
-// It can be useful to assert that a test is currently running with a real card.
-func PCSCCard(card *iso.Card) iso.PCSCCard {
-	prev := card.PCSCCard
-
-	for {
-		switch card := prev.(type) {
-		case *iso.Card:
-			prev = card.PCSCCard
-		case *MockCard:
-			prev = card.next
-		case *TraceCard:
-			prev = card.next
-		case *pcsc.Card:
-			return card
-		default:
-			return nil
-		}
-	}
-}
-
 // ResetCard is a helper to reset a test card
 func ResetCard(card *iso.Card) error {
-	pcscCard := PCSCCard(card)
+	pcscCard := card.Base()
 	if pcscCard == nil {
-		return ErrFailedToCastCard
+		return ErrFailedToGetCard
 	}
 
-	resetCard, ok := pcscCard.(iso.ResettableCard)
+	reconnectableCard, ok := pcscCard.(iso.ReconnectableCard)
 	if !ok {
 		return ErrCardNotResettable
 	}
 
-	return resetCard.Reset()
+	return reconnectableCard.Reconnect(true)
 }
