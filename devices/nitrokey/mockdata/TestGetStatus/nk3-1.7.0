@@ -1,11 +1,11 @@
 mockfile
 
 file.version v2
-file.created 2024-05-15T16:42:11+02:00
+file.created 2024-05-15T17:13:34+02:00
 file.creator stv0g@rise
 
 meta attr.channel.type usb
-meta attr.channel.usb.addr 36
+meta attr.channel.usb.addr 39
 meta attr.channel.usb.bus 5
 meta attr.ifd.serial 
 meta attr.ifd.version 1.7.0
@@ -17,8 +17,8 @@ meta nitrokey.version 1.7.0
 meta status.active_protocol t1,any
 meta status.atr 3b8f01805d4e6974726f6b657900000000006a
 meta status.reader Nitrokey Nitrokey 3 [CCID/ICCD Interface] 00 00
-meta status.state present,powered,negotiable
+meta status.state powered,negotiable,present
 
 #     start      end method
-on    0.000    0.000 Transmit 00a4040009a00000084700000001 9000
+on    0.000    0.000 Transmit 00a4040009a0000008470000000100 9000
 on    1.887    1.887 Transmit 00800000018005 003501d8019000

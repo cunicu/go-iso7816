@@ -12,5 +12,5 @@ meta status.reader Nitrokey Nitrokey 3
 meta status.state present,powered,specific
 
 #     start      end method
-on    0.000    0.000 Transmit 00a4040009a00000084700000001 9000
+on    0.000    0.000 Transmit 00a4040009a0000008470000000100 9000
 on    2.362    2.362 Transmit 0062000010 faabf284f9848452874c8f810eb04be09000
