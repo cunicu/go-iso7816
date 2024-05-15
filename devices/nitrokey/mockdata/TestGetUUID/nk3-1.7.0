@@ -1,11 +1,11 @@
 mockfile
 
 file.version v2
-file.created 2024-05-15T16:42:11+02:00
+file.created 2024-05-15T16:42:09+02:00
 file.creator stv0g@rise
 
 meta attr.channel.type usb
-meta attr.channel.usb.addr 36
+meta attr.channel.usb.addr 35
 meta attr.channel.usb.bus 5
 meta attr.ifd.serial 
 meta attr.ifd.version 1.7.0
@@ -21,4 +21,4 @@ meta status.state present,powered,negotiable
 
 #     start      end method
 on    0.000    0.000 Transmit 00a4040009a00000084700000001 9000
-on    1.757    1.757 Transmit 0063000001 019000
+on    1.919    1.919 Transmit 0062000010 faabf284f9848452874c8f810eb04be09000
