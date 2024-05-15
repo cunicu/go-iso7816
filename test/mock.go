@@ -36,11 +36,11 @@ type call struct {
 // reads/writes transcripts of the commands (APDUs)
 // from a file to emulate a real smart card with a mock object.
 type MockCard struct {
+	iso.PCSCCard
 	mock.Mock
 	test *testing.T
 
 	calls []call
-	next  iso.PCSCCard
 }
 
 // NewMockCard creates a new smart card mock.
@@ -53,13 +53,13 @@ type MockCard struct {
 // be recorded and written the the transcript file above during Close().
 func NewMockCard(t *testing.T, realCard iso.PCSCCard) (c *MockCard, err error) {
 	c = &MockCard{
-		test: t,
-		next: realCard,
+		PCSCCard: realCard,
+		test:     t,
 	}
 
 	c.Mock.Test(c.test)
 
-	if c.next == nil {
+	if c.PCSCCard == nil {
 		if err := c.LoadTranscript(); err != nil {
 			return nil, fmt.Errorf("failed to load transcript: %w", err)
 		}
@@ -71,7 +71,7 @@ func NewMockCard(t *testing.T, realCard iso.PCSCCard) (c *MockCard, err error) {
 // Close invokes WriteTranscript() in case a real-card
 // was passed to NewMockCard().
 func (c *MockCard) Close() error {
-	if c.next != nil {
+	if c.PCSCCard != nil {
 		if err := c.WriteTranscript(); err != nil {
 			return fmt.Errorf("failed to write transcript: %w", err)
 		}
@@ -83,10 +83,10 @@ func (c *MockCard) Close() error {
 }
 
 func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
-	if c.next != nil {
+	if c.PCSCCard != nil {
 		start := time.Now()
 
-		resp, err = c.next.Transmit(cmd)
+		resp, err = c.PCSCCard.Transmit(cmd)
 
 		c.calls = append(c.calls, call{
 			Start:    start,
@@ -106,10 +106,10 @@ func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 }
 
 func (c *MockCard) BeginTransaction() error {
-	if c.next != nil {
+	if c.PCSCCard != nil {
 		start := time.Now()
 
-		err := c.next.BeginTransaction()
+		err := c.PCSCCard.BeginTransaction()
 
 		c.calls = append(c.calls, call{
 			Start:  start,
@@ -125,10 +125,10 @@ func (c *MockCard) BeginTransaction() error {
 }
 
 func (c *MockCard) EndTransaction() error {
-	if c.next != nil {
+	if c.PCSCCard != nil {
 		start := time.Now()
 
-		err := c.next.EndTransaction()
+		err := c.PCSCCard.EndTransaction()
 
 		c.calls = append(c.calls, call{
 			Start:  start,
@@ -250,7 +250,7 @@ func (c *MockCard) WriteTranscript() error {
 
 	fmt.Fprintln(f)
 
-	if mc, ok := c.next.(iso.MetadataCard); ok {
+	if mc, ok := c.PCSCCard.(iso.MetadataCard); ok {
 		forEachSorted(mc.Metadata(), func(key, value string) {
 			fmt.Fprintln(f, "meta", key, value)
 		})
