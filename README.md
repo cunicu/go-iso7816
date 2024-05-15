@@ -31,6 +31,7 @@ This includes:
 - Basic card management and query support for:
   - [YubiKeys](https://www.yubico.com/)
   - [Nitrokeys](https://nitrokey.com/)
+  - [FEITIAN Security Keys](https://www.ftsafe.com/)
 
 - Card enumeration and filters
 
