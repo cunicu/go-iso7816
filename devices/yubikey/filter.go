@@ -24,7 +24,7 @@ func HasVersion(v iso.Version) filter.Filter {
 	return withApplet(iso.AidYubicoOTP, func(card *iso.Card) (bool, error) {
 		if sts, err := GetStatus(card); err != nil {
 			return false, err
-		} else if !sts.Version.Less(v) {
+		} else if v.Less(sts.Version) {
 			return false, nil
 		}
 
