@@ -97,13 +97,17 @@ func WithCard(t *testing.T, flt filter.Filter, cb func(t *testing.T, card *iso.C
 		entries, err := os.ReadDir(mockDir)
 		require.NoError(err)
 
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
-			}
+		if len(entries) == 0 {
+			t.Skip("No mockdata available")
+		} else {
+			for _, entry := range entries {
+				if entry.IsDir() {
+					continue
+				}
 
-			// subMockDir := filepath.Join(mockDir, entry.Name())
-			t.Run(entry.Name(), withMock)
+				// subMockDir := filepath.Join(mockDir, entry.Name())
+				t.Run(entry.Name(), withMock)
+			}
 		}
 	}
 }
