@@ -24,16 +24,12 @@ var ErrOpen = errors.New("open card for detailed filtering")
 type Filter func(reader string, card *iso.Card) (bool, error)
 
 // Any matches any card
-//
-//nolint:gochecknoglobals
-var Any Filter = func(string, *iso.Card) (bool, error) {
+func Any(string, *iso.Card) (bool, error) {
 	return true, nil
 }
 
 // None matches no card
-//
-//nolint:gochecknoglobals
-var None Filter = func(string, *iso.Card) (bool, error) {
+func None(string, *iso.Card) (bool, error) {
 	return false, nil
 }
 
