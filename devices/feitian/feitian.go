@@ -36,7 +36,7 @@ func (c *Card) Transmit(cmd *iso.CAPDU) ([]byte, error) {
 		cmdBuf = append(cmdBuf, byte(cmd.Ne))
 	}
 
-	if lc := len(cmd.Data); lc <= 0xff {
+	if lc := len(cmd.Data); lc <= 0xFF {
 		cmdBuf = append(cmdBuf, byte(lc))
 	} else {
 		panic("unsupported command length")

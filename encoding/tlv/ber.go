@@ -17,12 +17,12 @@ const (
 )
 
 func (t Tag) Class() Class {
-	return Class((t & 0xff) >> 6)
+	return Class((t & 0xFF) >> 6)
 }
 
 func (t Tag) IsConstructed() bool {
 	u := t
-	for u > 0xff {
+	for u > 0xFF {
 		u >>= 8
 	}
 
@@ -53,21 +53,21 @@ func (t *Tag) UnmarshalBER(buf []byte) (rBuf []byte, err error) {
 		return nil, errInvalidLength
 	}
 
-	if buf[0]&0x1f != 0x1f {
+	if buf[0]&0x1F != 0x1F {
 		*t = Tag(buf[0])
 		return buf[1:], nil
 	}
 
 	if len(buf) < 2 {
 		return nil, errInvalidLength
-	} else if buf[1]&0x80 == 0 && buf[1]&0x7f > 30 {
+	} else if buf[1]&0x80 == 0 && buf[1]&0x7F > 30 {
 		*t = Tag(uint32(buf[0])<<8 | uint32(buf[1]))
 		return buf[2:], nil
 	}
 
 	if len(buf) < 3 {
 		return nil, errInvalidLength
-	} else if buf[1]&0x80 == 0x80 && buf[1]&0x7f != 0 {
+	} else if buf[1]&0x80 == 0x80 && buf[1]&0x7F != 0 {
 		*t = Tag(uint32(buf[0])<<16 | uint32(buf[1])<<8 | uint32(buf[2]))
 		return buf[3:], nil
 	}
