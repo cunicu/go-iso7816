@@ -17,3 +17,7 @@ const (
 	InsOTP        iso.Instruction = 0x01 // Most commands of the OTP applet use this value
 	InsReadStatus iso.Instruction = 0x03
 )
+
+type Card struct {
+	*iso.Card
+}

@@ -21,8 +21,8 @@ func HasVersionStr(s string) filter.Filter {
 // HasVersion checks that the card has a firmware version equal or higher
 // than the given one.
 func HasVersion(v iso.Version) filter.Filter {
-	return withApplet(iso.AidYubicoOTP, func(card *iso.Card) (bool, error) {
-		if sts, err := GetStatus(card); err != nil {
+	return withApplet(iso.AidYubicoOTP, func(card *Card) (bool, error) {
+		if sts, err := card.Status(); err != nil {
 			return false, err
 		} else if v.Less(sts.Version) {
 			return false, nil
@@ -105,8 +105,8 @@ func hasCapabilityEnabled(c Capability) filter.Filter {
 }
 
 func withDeviceInfo(cb func(di *DeviceInfo) bool) filter.Filter {
-	return withApplet(iso.AidYubicoManagement, func(card *iso.Card) (bool, error) {
-		di, err := GetDeviceInfo(card)
+	return withApplet(iso.AidYubicoManagement, func(card *Card) (bool, error) {
+		di, err := card.DeviceInfo()
 		if err != nil {
 			return false, fmt.Errorf("failed to get device information: %w", err)
 		}
@@ -115,7 +115,7 @@ func withDeviceInfo(cb func(di *DeviceInfo) bool) filter.Filter {
 	})
 }
 
-func withApplet(aid []byte, cb func(card *iso.Card) (bool, error)) filter.Filter {
+func withApplet(aid []byte, cb func(card *Card) (bool, error)) filter.Filter {
 	return func(reader string, card *iso.Card) (bool, error) {
 		// Matching against the name first saves us from connecting to the card
 		if match, err := filter.IsYubiKey(reader, card); err != nil {
@@ -132,6 +132,8 @@ func withApplet(aid []byte, cb func(card *iso.Card) (bool, error)) filter.Filter
 			return false, nil //nolint:nilerr
 		}
 
-		return cb(card)
+		yc := &Card{card}
+
+		return cb(yc)
 	}
 }

@@ -16,14 +16,22 @@ import (
 	"cunicu.li/go-iso7816/test"
 )
 
-func TestGetUUID(t *testing.T) {
+func withCard(t *testing.T, cb func(t *testing.T, c *nk.Card)) {
 	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
 		require := require.New(t)
 
 		_, err := card.Select(iso.AidSolokeysAdmin)
 		require.NoError(err)
 
-		uuidBuf, err := nk.GetUUID(card)
+		cb(t, &nk.Card{card})
+	})
+}
+
+func TestGetUUID(t *testing.T) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
+		require := require.New(t)
+
+		uuidBuf, err := card.UUID()
 		require.NoError(err)
 
 		uid, err := uuid.FromBytes(uuidBuf)
@@ -33,14 +41,11 @@ func TestGetUUID(t *testing.T) {
 	})
 }
 
-func TestGetRandom(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+func TestRandom(t *testing.T) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso.AidSolokeysAdmin)
-		require.NoError(err)
-
-		rand, err := nk.GetRandom(card)
+		rand, err := card.Random()
 		require.NoError(err)
 		require.Len(rand, nk.LenRandom)
 
@@ -49,38 +54,29 @@ func TestGetRandom(t *testing.T) {
 }
 
 func TestReboot(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso.AidSolokeysAdmin)
-		require.NoError(err)
-
-		err = nk.Reboot(card)
+		err := card.Reboot()
 		require.NoError(err)
 	})
 }
 
 func TestIsLocked(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso.AidSolokeysAdmin)
-		require.NoError(err)
-
-		locked, err := nk.IsLocked(card)
+		locked, err := card.IsLocked()
 		require.NoError(err)
 		require.True(locked)
 	})
 }
 
 func TestGetFirmwareVersion(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso.AidSolokeysAdmin)
-		require.NoError(err)
-
-		ver, err := nk.GetFirmwareVersion(card)
+		ver, err := card.FirmwareVersion()
 		require.NoError(err)
 
 		t.Logf("Version: %+#v", ver)
@@ -88,13 +84,10 @@ func TestGetFirmwareVersion(t *testing.T) {
 }
 
 func TestGetStatus(t *testing.T) {
-	test.WithCard(t, filter.IsNitrokey3, func(t *testing.T, card *iso.Card) {
+	withCard(t, func(t *testing.T, card *nk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso.AidSolokeysAdmin)
-		require.NoError(err)
-
-		ds, err := nk.GetDeviceStatus(card)
+		ds, err := card.DeviceStatus()
 		require.NoError(err)
 
 		t.Logf("Status: %+#v", ds)
