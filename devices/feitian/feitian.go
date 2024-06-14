@@ -16,6 +16,11 @@ type Card struct {
 	*iso.Card
 }
 
+func NewCard(card iso.PCSCCard) *Card {
+	isoCard := iso.NewCard(card)
+	return &Card{isoCard}
+}
+
 // Transmit sends an APDU to the card and returns the response.
 // This is a custom version of iso7816.Card.Transmit()
 // as FEITIAN has a broken ISO-7816-4 implementation in their tokens.
