@@ -53,6 +53,11 @@ func (c *Card) Select(aid []byte) (respBuf []byte, err error) {
 	})
 }
 
+// If checks that the card meets the provided filter condition.
+func (c *Card) If(flt func(card PCSCCard) (bool, error)) (bool, error) {
+	return flt(c)
+}
+
 // Send sends a command APDU to the card
 // nolint: unparam
 func (c *Card) Send(cmd *CAPDU) (respBuf []byte, err error) {
