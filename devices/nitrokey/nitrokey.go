@@ -82,9 +82,13 @@ func (ds *DeviceStatus) Unmarshal(b []byte) error {
 	return nil
 }
 
-// GetDeviceStatus returns the device status of the Nitrokey 3 token.
-func GetDeviceStatus(card *iso.Card) (*DeviceStatus, error) {
-	resp, err := card.Send(&iso.CAPDU{
+type Card struct {
+	*iso.Card
+}
+
+// DeviceStatus returns the device status of the Nitrokey 3 token.
+func (c *Card) DeviceStatus() (*DeviceStatus, error) {
+	resp, err := c.Send(&iso.CAPDU{
 		Ins:  iso.Instruction(InsAdminStatus),
 		P1:   0x00,
 		P2:   0x00,
@@ -103,9 +107,9 @@ func GetDeviceStatus(card *iso.Card) (*DeviceStatus, error) {
 	return ds, nil
 }
 
-// GetUUID returns the UUID of the Nitrokey 3 token.
-func GetUUID(card *iso.Card) ([]byte, error) {
-	resp, err := card.Send(&iso.CAPDU{
+// UUID returns the UUID of the Nitrokey 3 token.
+func (c *Card) UUID() ([]byte, error) {
+	resp, err := c.Send(&iso.CAPDU{
 		Ins: InsGetUUID,
 		P1:  0x00,
 		P2:  0x00,
@@ -122,9 +126,9 @@ func GetUUID(card *iso.Card) ([]byte, error) {
 	return resp, nil
 }
 
-// GetFirmwareVersion returns the firmware version of the Nitrokey 3 token.
-func GetFirmwareVersion(card *iso.Card) (*iso.Version, error) {
-	resp, err := card.Send(&iso.CAPDU{
+// FirmwareVersion returns the firmware version of the Nitrokey 3 token.
+func (c *Card) FirmwareVersion() (*iso.Version, error) {
+	resp, err := c.Send(&iso.CAPDU{
 		Ins:  InsGetFirmwareVersion,
 		P1:   0x00,
 		P2:   0x00,
@@ -150,24 +154,24 @@ func GetFirmwareVersion(card *iso.Card) (*iso.Version, error) {
 	}, nil
 }
 
-// GetRandom returns LenRandom bytes of random bytes.
-func GetRandom(card *iso.Card) ([]byte, error) {
-	return card.Send(&iso.CAPDU{
+// Random returns LenRandom bytes of random bytes.
+func (c *Card) Random() ([]byte, error) {
+	return c.Send(&iso.CAPDU{
 		Ins: InsRNG,
 		Ne:  LenRandom,
 	})
 }
 
 // Reboot resets the token.
-func Reboot(card *iso.Card) error {
-	_, err := card.Send(&iso.CAPDU{Ins: InsReboot})
+func (c *Card) Reboot() error {
+	_, err := c.Send(&iso.CAPDU{Ins: InsReboot})
 	if !errors.Is(err, scard.ErrReaderUnavailable) {
 		return fmt.Errorf("unexpected error: %w", err)
 	}
 
 	// Rebooting, detaches the card reader briefly which
 	// requires re-enumerating/reconnecting.
-	if pcscCard := card.Base(); pcscCard != nil {
+	if pcscCard := c.Base(); pcscCard != nil {
 		if rcard, ok := pcscCard.(iso.ReconnectableCard); ok {
 			if err := rcard.Reconnect(false); err != nil {
 				return err
@@ -180,8 +184,8 @@ func Reboot(card *iso.Card) error {
 
 // IsLocked checks if the bootloader is locked.
 // Locked bootloaders can only be updated via officially signed firmware images.
-func IsLocked(card *iso.Card) (bool, error) {
-	resp, err := card.Send(&iso.CAPDU{
+func (c *Card) IsLocked() (bool, error) {
+	resp, err := c.Send(&iso.CAPDU{
 		Ins: InsLocked,
 		Ne:  1,
 	})
@@ -200,12 +204,13 @@ func Metadata(card *iso.Card) (meta map[string]any) {
 	}
 
 	meta = map[string]any{}
+	nc := &Card{card}
 
-	if v, err := GetFirmwareVersion(card); err == nil {
+	if v, err := nc.FirmwareVersion(); err == nil {
 		meta["version"] = v
 	}
 
-	if id, err := GetUUID(card); err == nil {
+	if id, err := nc.UUID(); err == nil {
 		meta["uuid"] = id
 	}
 

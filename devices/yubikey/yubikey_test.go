@@ -14,56 +14,55 @@ import (
 	"cunicu.li/go-iso7816/test"
 )
 
-func TestGetDeviceInfo(t *testing.T) {
+func withCard(t *testing.T, aid []byte, cb func(t *testing.T, card *yk.Card)) {
 	test.WithCard(t, filter.IsYubiKey, func(t *testing.T, card *iso7816.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso7816.AidYubicoManagement)
+		_, err := card.Select(aid)
 		require.NoError(err)
 
-		di, err := yk.GetDeviceInfo(card)
+		cb(t, &yk.Card{card})
+	})
+}
+
+func TestDeviceInfo(t *testing.T) {
+	withCard(t, iso7816.AidYubicoManagement, func(t *testing.T, card *yk.Card) {
+		require := require.New(t)
+
+		di, err := card.DeviceInfo()
 		require.NoError(err)
 
 		t.Logf("Device Info: %+#v", di)
 	})
 }
 
-func TestGetStatus(t *testing.T) {
-	test.WithCard(t, filter.IsYubiKey, func(t *testing.T, card *iso7816.Card) {
+func TestStatus(t *testing.T) {
+	withCard(t, iso7816.AidYubicoOTP, func(t *testing.T, card *yk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso7816.AidYubicoOTP)
-		require.NoError(err)
-
-		sts, err := yk.GetStatus(card)
+		sts, err := card.Status()
 		require.NoError(err)
 
 		t.Logf("Status: %+#v", sts)
 	})
 }
 
-func TestGetSerialNumber(t *testing.T) {
-	test.WithCard(t, filter.IsYubiKey, func(t *testing.T, card *iso7816.Card) {
+func TestSerialNumber(t *testing.T) {
+	withCard(t, iso7816.AidYubicoOTP, func(t *testing.T, card *yk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso7816.AidYubicoOTP)
-		require.NoError(err)
-
-		sno, err := yk.GetSerialNumber(card)
+		sno, err := card.SerialNumber()
 		require.NoError(err)
 
 		t.Logf("Serial Number: %d", sno)
 	})
 }
 
-func TestGetFIPSMode(t *testing.T) {
-	test.WithCard(t, filter.IsYubiKey, func(t *testing.T, card *iso7816.Card) {
+func TestFIPSMode(t *testing.T) {
+	withCard(t, iso7816.AidYubicoOTP, func(t *testing.T, card *yk.Card) {
 		require := require.New(t)
 
-		_, err := card.Select(iso7816.AidYubicoOTP)
-		require.NoError(err)
-
-		fm, err := yk.GetFIPSMode(card)
+		fm, err := card.FIPSMode()
 		require.NoError(err)
 
 		t.Logf("FIPS Mode: %t", fm)
