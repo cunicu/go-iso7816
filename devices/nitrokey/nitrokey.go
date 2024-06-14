@@ -86,6 +86,11 @@ type Card struct {
 	*iso.Card
 }
 
+func NewCard(card iso.PCSCCard) *Card {
+	isoCard := iso.NewCard(card)
+	return &Card{isoCard}
+}
+
 // DeviceStatus returns the device status of the Nitrokey 3 token.
 func (c *Card) DeviceStatus() (*DeviceStatus, error) {
 	resp, err := c.Send(&iso.CAPDU{
