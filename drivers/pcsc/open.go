@@ -29,7 +29,7 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter, shared bool) (car
 	for _, reader := range readers {
 		var card *iso.Card
 		for i := 0; i < 2; i++ {
-			if match, err := flt(reader, card); errors.Is(err, filter.ErrOpen) || match {
+			if match, err := flt(card); errors.Is(err, filter.ErrOpen) || match {
 				if card, err = NewCard(ctx, reader, shared); err != nil {
 					return nil, fmt.Errorf("failed to connect to card: %w", err)
 				}

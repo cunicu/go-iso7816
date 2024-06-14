@@ -21,8 +21,9 @@ func HasVersionStr(s string) filter.Filter {
 // HasVersion checks that the card has a firmware version equal or higher
 // than the given one.
 func HasVersion(v iso.Version) filter.Filter {
-	return withApplet(iso.AidYubicoOTP, func(card *Card) (bool, error) {
-		if sts, err := card.Status(); err != nil {
+	return withApplet(iso.AidYubicoOTP, func(card iso.PCSCCard) (bool, error) {
+		ykCard := Card{iso.NewCard(card)}
+		if sts, err := ykCard.Status(); err != nil {
 			return false, err
 		} else if v.Less(sts.Version) {
 			return false, nil
@@ -58,44 +59,44 @@ var (
 
 // HasOTP is a filter which checks if the YubiKey has the OTP
 // applet enabled.
-func HasOTP(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapOTP)(reader, card)
+func HasOTP(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapOTP)(card)
 }
 
 // HasU2F is a filter which checks if the YubiKey has the U2F
 // applet enabled.
-func HasU2F(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapU2F)(reader, card)
+func HasU2F(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapU2F)(card)
 }
 
 // HasFIDO2 is a filter which checks if the YubiKey has the FIDO2
 // applet enabled.
-func HasFIDO2(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapFIDO2)(reader, card)
+func HasFIDO2(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapFIDO2)(card)
 }
 
 // HasOATH is a filter which checks if the YubiKey has the OATH
 // applet enabled.
-func HasOATH(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapOATH)(reader, card)
+func HasOATH(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapOATH)(card)
 }
 
 // HasPIV is a filter which checks if the YubiKey has the PIV
 // applet enabled.
-func HasPIV(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapPIV)(reader, card)
+func HasPIV(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapPIV)(card)
 }
 
 // HasOpenPGP is a filter which checks if the YubiKey has the OpenPGP
 // applet enabled.
-func HasOpenPGP(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapOpenPGP)(reader, card)
+func HasOpenPGP(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapOpenPGP)(card)
 }
 
 // HasHSMAuth is a filter which checks if the YubiKey has the HSM authentication
 // applet enabled.
-func HasHSMAuth(reader string, card *iso.Card) (bool, error) {
-	return hasCapabilityEnabled(CapOpenPGP)(reader, card)
+func HasHSMAuth(card iso.PCSCCard) (bool, error) {
+	return hasCapabilityEnabled(CapOpenPGP)(card)
 }
 
 func hasCapabilityEnabled(c Capability) filter.Filter {
@@ -105,8 +106,9 @@ func hasCapabilityEnabled(c Capability) filter.Filter {
 }
 
 func withDeviceInfo(cb func(di *DeviceInfo) bool) filter.Filter {
-	return withApplet(iso.AidYubicoManagement, func(card *Card) (bool, error) {
-		di, err := card.DeviceInfo()
+	return withApplet(iso.AidYubicoManagement, func(card iso.PCSCCard) (bool, error) {
+		ykCard := Card{iso.NewCard(card)}
+		di, err := ykCard.DeviceInfo()
 		if err != nil {
 			return false, fmt.Errorf("failed to get device information: %w", err)
 		}
@@ -115,10 +117,10 @@ func withDeviceInfo(cb func(di *DeviceInfo) bool) filter.Filter {
 	})
 }
 
-func withApplet(aid []byte, cb func(card *Card) (bool, error)) filter.Filter {
-	return func(reader string, card *iso.Card) (bool, error) {
+func withApplet(aid []byte, cb func(card iso.PCSCCard) (bool, error)) filter.Filter {
+	return func(card iso.PCSCCard) (bool, error) {
 		// Matching against the name first saves us from connecting to the card
-		if match, err := filter.IsYubiKey(reader, card); err != nil {
+		if match, err := filter.IsYubiKey(card); err != nil {
 			return false, err
 		} else if !match {
 			return false, nil
@@ -128,12 +130,13 @@ func withApplet(aid []byte, cb func(card *Card) (bool, error)) filter.Filter {
 			return false, filter.ErrOpen
 		}
 
-		if _, err := card.Select(aid); err != nil {
+		isoCard := iso.NewCard(card)
+		if _, err := isoCard.Select(aid); err != nil {
 			return false, nil //nolint:nilerr
 		}
 
-		yc := &Card{card}
+		ykCard := &Card{iso.NewCard(card)}
 
-		return cb(yc)
+		return cb(ykCard)
 	}
 }
