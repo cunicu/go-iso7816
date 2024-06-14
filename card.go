@@ -11,6 +11,10 @@ type ReconnectableCard interface {
 	Reconnect(reset bool) error
 }
 
+type ReaderCard interface {
+	Reader() string
+}
+
 type MetadataCard interface {
 	Metadata() map[string]string
 }

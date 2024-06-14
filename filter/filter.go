@@ -21,27 +21,28 @@ var ErrOpen = errors.New("open card for detailed filtering")
 // Filter is a predicate which evaluates
 // whether a given reader/card matches
 // a given condition.
-type Filter func(reader string, card *iso.Card) (bool, error)
+type Filter func(card iso.PCSCCard) (bool, error)
 
 // Any matches any card
-func Any(string, *iso.Card) (bool, error) {
+func Any(_ iso.PCSCCard) (bool, error) {
 	return true, nil
 }
 
 // None matches no card
-func None(string, *iso.Card) (bool, error) {
+func None(_ iso.PCSCCard) (bool, error) {
 	return false, nil
 }
 
 // HasApplet matches card which can select an applet
 // with the given application identifier (AID).
 func HasApplet(aid []byte) Filter {
-	return func(_ string, card *iso.Card) (bool, error) {
+	return func(card iso.PCSCCard) (bool, error) {
 		if card == nil {
 			return false, ErrOpen
 		}
 
-		tx, err := card.NewTransaction()
+		isoCard := iso.NewCard(card)
+		tx, err := isoCard.NewTransaction()
 		if err != nil {
 			return false, fmt.Errorf("failed to begin transaction: %w", err)
 		}
