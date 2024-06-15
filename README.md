@@ -48,9 +48,9 @@ In the future we might want to add support for:
   - Apples CryptoTokenKit
   - CGo-less pcscd / libpcsc-lite
 
-## Authors
+## Contact
 
-- Steffen Vogel ([@stv0g](https://github.com/stv0g))
+Please have a look at the contact page: [cunicu.li/docs/contact](https://cunicu.li/docs/contact).
 
 ## License
 
