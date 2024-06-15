@@ -177,5 +177,5 @@ func (c Code) IsCompleted() bool {
 }
 
 func (c Code) IsAborted() bool {
-	return c[0] == 0x64 || c[0] == 0x66 || c[0] == 0x67 || c[0] == 0x6f
+	return c[0] == 0x64 || c[0] == 0x66 || c[0] == 0x67 || c[0] == 0x6F
 }

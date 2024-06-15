@@ -7,16 +7,16 @@ func EncodeSimple(tvs ...TagValue) (buf []byte, err error) {
 	for _, tv := range tvs {
 		if tv.Tag == 0 || tv.Tag == 0xFF {
 			return nil, ErrInvalidTag
-		} else if tv.Tag > 0xff {
+		} else if tv.Tag > 0xFF {
 			return nil, ErrTagToBig
 		}
 
 		if tv.SkipLength {
 			buf = append(buf, byte(tv.Tag))
-		} else if l := len(tv.Value); l < 0xff {
+		} else if l := len(tv.Value); l < 0xFF {
 			buf = append(buf, byte(tv.Tag), byte(l))
-		} else if l <= 0xffff {
-			buf = append(buf, byte(tv.Tag), 0xff, byte(l>>8), byte(l))
+		} else if l <= 0xFFff {
+			buf = append(buf, byte(tv.Tag), 0xFF, byte(l>>8), byte(l))
 		} else {
 			return nil, ErrValueToLarge
 		}
@@ -34,7 +34,7 @@ func DecodeSimple(buf []byte) (tvs TagValues, err error) {
 		}
 
 		var o, l int
-		if buf[1] != 0xff {
+		if buf[1] != 0xFF {
 			o = 2
 			l = int(buf[1])
 		} else {

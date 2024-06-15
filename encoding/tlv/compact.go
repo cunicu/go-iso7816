@@ -9,7 +9,7 @@ func DecodeCompact(buf []byte) (tvs TagValues, err error) {
 			return nil, errInvalidLength
 		}
 
-		l := int(buf[0] & 0xf)
+		l := int(buf[0] & 0xF)
 
 		if len(buf) < l+1 {
 			return nil, errInvalidLength
@@ -27,11 +27,11 @@ func DecodeCompact(buf []byte) (tvs TagValues, err error) {
 
 func EncodeCompact(tvs ...TagValue) (buf []byte, err error) {
 	for _, tv := range tvs {
-		if tv.Tag > 0xf {
+		if tv.Tag > 0xF {
 			return nil, ErrTagToBig
 		}
 
-		if len(tv.Value) > 0xf {
+		if len(tv.Value) > 0xF {
 			return nil, ErrValueToLarge
 		}
 

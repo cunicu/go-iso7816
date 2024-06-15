@@ -22,11 +22,11 @@ const (
 	TagChalRespTimeout  tlv.Tag = 0x07
 	TagDeviceFlags      tlv.Tag = 0x08
 	TagAppVersions      tlv.Tag = 0x09
-	TagConfigLock       tlv.Tag = 0x0a
-	TagUnlock           tlv.Tag = 0x0b
-	TagReboot           tlv.Tag = 0x0c
-	TagCapsSupportedNFC tlv.Tag = 0x0d
-	TagCapsEnabledNFC   tlv.Tag = 0x0e
+	TagConfigLock       tlv.Tag = 0x0A
+	TagUnlock           tlv.Tag = 0x0B
+	TagReboot           tlv.Tag = 0x0C
+	TagCapsSupportedNFC tlv.Tag = 0x0D
+	TagCapsEnabledNFC   tlv.Tag = 0x0E
 )
 
 type DeviceFlag byte
@@ -133,7 +133,7 @@ func (di *DeviceInfo) Unmarshal(b []byte) error {
 				return fmt.Errorf("%w: FormFactor", ErrInvalidResponseLength)
 			}
 
-			di.FormFactor = FormFactor(tv.Value[0] & 0xf)
+			di.FormFactor = FormFactor(tv.Value[0] & 0xF)
 			di.IsFIPS = tv.Value[0]&0x80 != 0
 			di.IsSky = tv.Value[0]&0x40 != 0
 

@@ -14,7 +14,7 @@ import (
 const (
 	ctagCountryCode   tlv.Tag = 0x1 // ISO 7816-4 Section 8.1.1.2.1 Country or issuer indicator
 	ctagIssuerID      tlv.Tag = 0x2 // ISO 7816-4 Section 8.1.1.2.1 Country or issuer indicator
-	ctagAID           tlv.Tag = 0xf // ISO 7816-4 Section 8.1.1.2.2 Application identifier
+	ctagAID           tlv.Tag = 0xF // ISO 7816-4 Section 8.1.1.2.2 Application identifier
 	ctagCardService   tlv.Tag = 0x3 // ISO 7816-4 Section 8.1.1.2.2 Application identifier
 	ctagInitialAccess tlv.Tag = 0x4 // ISO 7816-4 Section 8.1.1.2.4 Initial access data
 	ctagCardIssuer    tlv.Tag = 0x5 // ISO 7816-4 Section 8.1.1.2.5 Card issuer's data
@@ -39,7 +39,7 @@ const (
 )
 
 func (cs CardService) AccessServices() byte {
-	return byte(cs) & 0xe
+	return byte(cs) & 0xE
 }
 
 func (cs *CardService) Decode(b []byte) error {
@@ -93,7 +93,7 @@ const (
 // DataUnitSize returns the data unit size in quartets
 // Note: 2 quartets are one byte!
 func (cc CardCapabilities) DataUnitSize() int {
-	shift := int((cc >> 8) & 0xf)
+	shift := int((cc >> 8) & 0xF)
 	return 1 << shift
 }
 

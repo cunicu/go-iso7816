@@ -71,9 +71,9 @@ func (c *Card) Metadata() (meta map[string]string) {
 	if data, err := c.GetAttrib(scard.AttrVendorIfdVersion); err == nil && len(data) == 4 {
 		idata := binary.NativeEndian.Uint32(data)
 		v := iso7816.Version{
-			Major: int(idata>>24) & 0xff,
-			Minor: int(idata>>16) & 0xff,
-			Patch: int(idata & 0xffff),
+			Major: int(idata>>24) & 0xFF,
+			Minor: int(idata>>16) & 0xFF,
+			Patch: int(idata & 0xFFff),
 		}
 
 		meta["attr.ifd.version"] = v.String()
@@ -84,7 +84,7 @@ func (c *Card) Metadata() (meta map[string]string) {
 		idata := binary.NativeEndian.Uint32(data)
 
 		chType := idata >> 16
-		chNum := idata & 0xffff
+		chNum := idata & 0xFFff
 
 		switch chType {
 		case 0x01: // Serial I/O; chNum is a port number.
@@ -115,7 +115,7 @@ func (c *Card) Metadata() (meta map[string]string) {
 			meta["attr.channel.usb.addr"] = fmt.Sprint(addr)
 
 		// Vendor-defined interface with y in the range zero through 15; chNum is vendor defined.
-		case 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff:
+		case 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFa, 0xFb, 0xFc, 0xFd, 0xFe, 0xFF:
 			meta["attr.channel.type"] = fmt.Sprintf("vendor:%2x", chType)
 			meta["attr.channel.vendor"] = fmt.Sprint(chNum)
 		}
