@@ -21,3 +21,8 @@ const (
 type Card struct {
 	*iso.Card
 }
+
+func NewCard(card iso.PCSCCard) *Card {
+	isoCard := iso.NewCard(card)
+	return &Card{isoCard}
+}
