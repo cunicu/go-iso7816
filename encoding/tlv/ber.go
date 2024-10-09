@@ -3,7 +3,11 @@
 
 package tlv
 
-import "errors"
+import (
+	"errors"
+	"math"
+	"math/bits"
+)
 
 var ErrNotConstructed = errors.New("tag is not constructed but contains children")
 
@@ -30,17 +34,28 @@ func (t Tag) IsConstructed() bool {
 }
 
 func (t Tag) MarshalBER() (buf []byte, err error) {
-	switch {
-	case t>>8 == 0:
-		buf = []byte{byte(t >> 0)}
-	case t>>16 == 0:
-		buf = []byte{byte(t >> 8), byte(t >> 0)}
-	case t>>24 == 0:
-		buf = []byte{byte(t >> 16), byte(t >> 8), byte(t >> 0)}
-	case t>>32 == 0:
-		buf = []byte{byte(t >> 24), byte(t >> 16), byte(t >> 8), byte(t >> 0)}
-	default:
-		return nil, errInvalidLength
+	if t < 0x1f {
+		buf = []byte{byte(t)}
+		return buf, nil
+	}
+
+	// Tags > 30 must be split over consecutive bytes where the 7th bit denotes
+	// when the tag stops
+
+	buf = []byte{byte(0x1f)}
+	numOfBits := bits.Len(uint(t))
+
+	// Number of bytes the tag will be split over
+	numOfBytes := int(math.Ceil(float64(numOfBits) / float64(7)))
+
+	for i := 0; i < numOfBytes; i++ {
+		b := t >> (i * 7)
+		if bits.Len(uint(b)) > 7 {
+			b |= 0x80
+		} else {
+			b &= 0x7F
+		}
+		buf = append(buf, byte(b))
 	}
 
 	return buf, nil
@@ -102,6 +117,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 	buf = append(buf, tb...)
 	buf = append(buf, lb...)
 	if cBuf != nil {
+		buf[0] |= 0x20 // set constructed bit
 		buf = append(buf, cBuf...)
 	} else {
 		buf = append(buf, tv.Value...)
