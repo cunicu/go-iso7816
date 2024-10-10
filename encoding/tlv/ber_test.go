@@ -19,6 +19,7 @@ func TestTagBER(t *testing.T) {
 		class       tlv.Class
 		constructed bool
 	}{
+		{tlv.NewBERTag(0x2, tlv.ClassContext), tlv.ClassContext, false},
 		{tlv.NewBERTag(0x20, tlv.ClassUniversal), tlv.ClassUniversal, false},
 		{tlv.NewBERTag(0x200, tlv.ClassContext), tlv.ClassContext, false},
 		{tlv.NewBERTag(0x20000, tlv.ClassPrivate), tlv.ClassPrivate, false},
