@@ -3,7 +3,10 @@
 
 package tlv
 
-import "errors"
+import (
+	"errors"
+	"math/bits"
+)
 
 var ErrNotConstructed = errors.New("tag is not constructed but contains children")
 
@@ -39,7 +42,12 @@ func NewBERTag(value uint, class Class) Tag {
 }
 
 func (t Tag) Class() Class {
-	return Class((t & 0xFF) >> 6)
+	bitLen := bits.Len(uint(t))
+	if bitLen%8 == 0 {
+		return Class(t >> (bitLen - 2))
+	}
+	alignedBitLen := (bitLen + 8 - (bitLen % 8))
+	return Class(t >> (alignedBitLen - 2))
 }
 
 func (t Tag) IsConstructed() bool {
