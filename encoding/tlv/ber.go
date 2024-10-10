@@ -16,6 +16,28 @@ const (
 	ClassPrivate     Class = 0b11
 )
 
+// NewBERTag creates a new ASN.1 BER-TLV encoded tag field from a value and class
+// See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
+func NewBERTag(value uint, class Class) Tag {
+	var tag uint
+
+	if value < 0x1F {
+		return Tag(value | (uint(class) >> 6))
+	}
+
+	tag = 0x1F | (uint(class) << 6)
+	if value < 0x7F {
+		return Tag(tag<<8 | value)
+	}
+	if value < 0x3FFF {
+		return Tag((tag << 16) | (((value>>7)&0x7F | 0x80) << 8) | (value & 0x7F))
+	}
+	if value < 0x1FFFFF {
+		return Tag((tag << 24) | (((value>>14)&0x7F | 0x80) << 16) | (((value>>7)&0x7F | 0x80) << 8) | (value & 0x7F))
+	}
+	return 0
+}
+
 func (t Tag) Class() Class {
 	return Class((t & 0xFF) >> 6)
 }

@@ -19,6 +19,9 @@ func TestTagBER(t *testing.T) {
 		class       tlv.Class
 		constructed bool
 	}{
+		{tlv.NewBERTag(0x20, tlv.ClassUniversal), tlv.ClassUniversal, false},
+		{tlv.NewBERTag(0x200, tlv.ClassContext), tlv.ClassContext, false},
+		{tlv.NewBERTag(0x20000, tlv.ClassPrivate), tlv.ClassPrivate, false},
 		{0x21, tlv.ClassUniversal, true},
 		{0x01, tlv.ClassUniversal, false},
 		{0x41, tlv.ClassApplication, false},
@@ -44,12 +47,14 @@ func TestEncodeBER(t *testing.T) {
 	expected = append(expected, 0x03, 0x82, 0x01, 0o0)
 	expected = append(expected, long2...)
 	expected = append(expected, 0x08, 0x03, 0x20, 0x21, 0x22)
+	expected = append(expected, 0x1f, 0x82, 0x00, 0x01, 0x20)
 
 	buf, err := tlv.EncodeBER(
 		tlv.New(0x1, []byte{0x10, 0x11, 0x12, 0x13}),
 		tlv.New(0x2, long1),
 		tlv.New(0x3, long2),
 		tlv.New(0x8, []byte{0x20, 0x21, 0x22}),
+		tlv.New(tlv.NewBERTag(0x100, tlv.ClassUniversal), []byte{0x20}),
 	)
 	require.NoError(err)
 	require.Equal(expected, buf)
@@ -61,6 +66,7 @@ func TestEncodeBER(t *testing.T) {
 		tlv.New(0x2, long1),
 		tlv.New(0x3, long2),
 		tlv.New(0x8, []byte{0x20, 0x21, 0x22}),
+		tlv.New(tlv.NewBERTag(0x100, tlv.ClassUniversal), []byte{0x20}),
 	}, tvs)
 }
 
