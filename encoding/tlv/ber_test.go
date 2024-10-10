@@ -74,9 +74,14 @@ func TestEncodeNestedBER(t *testing.T) {
 	require := require.New(t)
 
 	expected := []byte{0x21, 0x09, 0x02, 0x02, 0x03, 0x04, 0x03, 0x03, 0x05, 0x06, 0x07}
+	expected = append(expected, 0x3F, 0x33, 0x09, 0x02, 0x02, 0x03, 0x04, 0x03, 0x03, 0x05, 0x06, 0x07)
 
 	buf, err := tlv.EncodeBER(
-		tlv.New(0x21,
+		tlv.New(0x01,
+			tlv.New(0x2, []byte{3, 4}),
+			tlv.New(0x3, []byte{5, 6, 7}),
+		),
+		tlv.New(tlv.NewBERTag(0x33, tlv.ClassUniversal),
 			tlv.New(0x2, []byte{3, 4}),
 			tlv.New(0x3, []byte{5, 6, 7}),
 		),
@@ -87,7 +92,11 @@ func TestEncodeNestedBER(t *testing.T) {
 	tvs, err := tlv.DecodeBER(buf)
 	require.NoError(err)
 	require.True(tvs.Equal(tlv.TagValues{
-		tlv.New(0x21,
+		tlv.New(0x21, // Still supports manually setting the constructed bit
+			tlv.New(0x2, []byte{3, 4}),
+			tlv.New(0x3, []byte{5, 6, 7}),
+		),
+		tlv.New(tlv.NewBERTag(0x33, tlv.ClassContext),
 			tlv.New(0x2, []byte{3, 4}),
 			tlv.New(0x3, []byte{5, 6, 7}),
 		),
