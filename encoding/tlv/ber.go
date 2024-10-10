@@ -132,6 +132,7 @@ func (tv TagValue) MarshalBER() (buf []byte, err error) {
 	buf = append(buf, tb...)
 	buf = append(buf, lb...)
 	if cBuf != nil {
+		buf[0] |= 0x20
 		buf = append(buf, cBuf...)
 	} else {
 		buf = append(buf, tv.Value...)
