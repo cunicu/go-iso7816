@@ -25,7 +25,7 @@ func NewBERTag(number uint, class Class) Tag {
 	var tag uint
 
 	if number < 0x1F {
-		return Tag(number | (uint(class) >> 6))
+		return Tag(number | (uint(class) << 6))
 	}
 
 	tag = 0x1F | (uint(class) << 6)
