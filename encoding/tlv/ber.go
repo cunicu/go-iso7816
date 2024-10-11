@@ -50,6 +50,31 @@ func (t Tag) Class() Class {
 	return Class(t >> (alignedBitLen - 2))
 }
 
+// Returns the BER encoded number of the tag
+func (t Tag) BERNumber() uint {
+	bitLen := bits.Len(uint(t))
+	var byteLen int
+	if bitLen%8 == 0 {
+		byteLen = bitLen / 8
+	} else {
+		byteLen = (bitLen + 8 - (bitLen % 8)) / 8
+	}
+	switch byteLen {
+	case 0:
+		return 0
+	case 1:
+		return uint(t) & 0x1F
+	case 2:
+		return uint(t) & 0x7F
+	case 3:
+		return ((uint(t) & (0x7F << 8)) >> 1) | (uint(t) & 0x7F)
+	case 4:
+		return ((uint(t) & (0x7F << 16)) >> 2) | ((uint(t) & (0x7F << 8)) >> 1) | (uint(t) & 0x7F)
+	default:
+		return 0
+	}
+}
+
 func (t Tag) IsConstructed() bool {
 	u := t
 	for u > 0xFF {

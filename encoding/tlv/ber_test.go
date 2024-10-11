@@ -16,21 +16,23 @@ func TestTagBER(t *testing.T) {
 
 	cases := []struct {
 		tag         tlv.Tag
+		number      uint
 		class       tlv.Class
 		constructed bool
 	}{
-		{tlv.NewBERTag(0x2, tlv.ClassContext), tlv.ClassContext, false},
-		{tlv.NewBERTag(0x20, tlv.ClassUniversal), tlv.ClassUniversal, false},
-		{tlv.NewBERTag(0x200, tlv.ClassContext), tlv.ClassContext, false},
-		{tlv.NewBERTag(0x20000, tlv.ClassPrivate), tlv.ClassPrivate, false},
-		{0x21, tlv.ClassUniversal, true},
-		{0x01, tlv.ClassUniversal, false},
-		{0x41, tlv.ClassApplication, false},
-		{0x81, tlv.ClassContext, false},
-		{0xC1, tlv.ClassPrivate, false},
+		{tlv.NewBERTag(0x2, tlv.ClassContext), 0x2, tlv.ClassContext, false},
+		{tlv.NewBERTag(0x20, tlv.ClassUniversal), 0x20, tlv.ClassUniversal, false},
+		{tlv.NewBERTag(0x200, tlv.ClassContext), 0x200, tlv.ClassContext, false},
+		{tlv.NewBERTag(0x20000, tlv.ClassPrivate), 0x20000, tlv.ClassPrivate, false},
+		{0x21, 0x01, tlv.ClassUniversal, true},
+		{0x01, 0x01, tlv.ClassUniversal, false},
+		{0x41, 0x01, tlv.ClassApplication, false},
+		{0x81, 0x01, tlv.ClassContext, false},
+		{0xC1, 0x01, tlv.ClassPrivate, false},
 	}
 
 	for _, c := range cases {
+		require.Equal(c.number, c.tag.BERNumber())
 		require.Equal(c.class, c.tag.Class())
 		require.Equal(c.constructed, c.tag.IsConstructed())
 	}
