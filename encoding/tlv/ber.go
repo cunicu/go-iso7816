@@ -19,46 +19,46 @@ const (
 	ClassPrivate     Class = 0b11
 )
 
-// NewBERTag creates a new ASN.1 BER-TLV encoded tag field from a value and class
+// NewBERTag creates a new ASN.1 BER-TLV encoded tag field from a value and class.
 // See: ISO 7816-4 Section 5.2.2.1 BER-TLV tag fields
 func NewBERTag(number uint, class Class) Tag {
-	var tag uint
+	tag := 0x1F | (uint(class) << 6)
 
-	if number < 0x1F {
+	switch {
+	case number < 0x1F:
 		return Tag(number | (uint(class) << 6))
-	}
-
-	tag = 0x1F | (uint(class) << 6)
-	if number < 0x7F {
+	case number < 0x7F:
 		return Tag(tag<<8 | number)
-	}
-	if number < 0x3FFF {
+	case number < 0x3FFF:
 		return Tag((tag << 16) | (((number>>7)&0x7F | 0x80) << 8) | (number & 0x7F))
-	}
-	if number < 0x1FFFFF {
+	case number < 0x1FFFFF:
 		return Tag((tag << 24) | (((number>>14)&0x7F | 0x80) << 16) | (((number>>7)&0x7F | 0x80) << 8) | (number & 0x7F))
 	}
+
 	return 0
 }
 
+// Class returns the class of the tag.
 func (t Tag) Class() Class {
 	bitLen := bits.Len(uint(t))
+
 	if bitLen%8 == 0 {
 		return Class(t >> (bitLen - 2))
 	}
-	alignedBitLen := (bitLen + 8 - (bitLen % 8))
-	return Class(t >> (alignedBitLen - 2))
+
+	return Class(t >> (bitLen + 6 - (bitLen % 8)))
 }
 
-// Returns the BER encoded number of the tag
+// BERNumber returns the BER-encoded number of the tag.
 func (t Tag) BERNumber() uint {
-	bitLen := bits.Len(uint(t))
 	var byteLen int
-	if bitLen%8 == 0 {
+
+	if bitLen := bits.Len(uint(t)); bitLen%8 == 0 {
 		byteLen = bitLen / 8
 	} else {
 		byteLen = (bitLen + 8 - (bitLen % 8)) / 8
 	}
+
 	switch byteLen {
 	case 0:
 		return 0
@@ -75,6 +75,7 @@ func (t Tag) BERNumber() uint {
 	}
 }
 
+// IsConstructed returns true if the tag is constructed.
 func (t Tag) IsConstructed() bool {
 	u := t
 	for u > 0xFF {
@@ -84,6 +85,7 @@ func (t Tag) IsConstructed() bool {
 	return u&(1<<5) != 0
 }
 
+// MarshalBER returns a BER-encoded representation of the tag.
 func (t Tag) MarshalBER() (buf []byte, err error) {
 	switch {
 	case t>>8 == 0:
