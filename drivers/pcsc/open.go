@@ -27,7 +27,7 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter, shared bool) (car
 	slices.Sort(readers)
 
 	for _, reader := range readers {
-		var card *iso.Card
+		var card iso.PCSCCard
 		for i := 0; i < 2; i++ {
 			if match, err := flt(card); errors.Is(err, filter.ErrOpen) || match {
 				if card, err = NewCard(ctx, reader, shared); err != nil {
@@ -35,7 +35,7 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter, shared bool) (car
 				}
 
 				if match {
-					cards = append(cards, card.PCSCCard)
+					cards = append(cards, card)
 					break
 				}
 			} else if err != nil {
