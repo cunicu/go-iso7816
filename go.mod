@@ -5,9 +5,7 @@ module cunicu.li/go-iso7816
 
 go 1.21
 
-require (
-	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
-)
+require github.com/ebfe/scard v0.0.0-20241214075232-7af069cabc25
 
 require (
 	github.com/google/uuid v1.6.0 // test-only
