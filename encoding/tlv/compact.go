@@ -35,7 +35,7 @@ func EncodeCompact(tvs ...TagValue) (buf []byte, err error) {
 			return nil, ErrValueToLarge
 		}
 
-		buf = append(buf, byte((int(tv.Tag)<<4)|len(tv.Value)))
+		buf = append(buf, byte((int(tv.Tag)<<4)|len(tv.Value))) //nolint:gosec
 		buf = append(buf, tv.Value...)
 	}
 

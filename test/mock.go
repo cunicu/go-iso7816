@@ -58,7 +58,7 @@ func NewMockCard(t *testing.T, realCard iso.PCSCCard) (c *MockCard, err error) {
 		test:     t,
 	}
 
-	c.Mock.Test(c.test)
+	c.Test(c.test)
 
 	if c.PCSCCard == nil {
 		if err := c.LoadTranscript(); err != nil {
@@ -78,7 +78,7 @@ func (c *MockCard) Close() error {
 		}
 	}
 
-	c.Mock.AssertExpectations(c.test)
+	c.AssertExpectations(c.test)
 
 	return nil
 }
@@ -103,7 +103,7 @@ func (c *MockCard) Transmit(cmd []byte) (resp []byte, err error) {
 			Response: resp,
 		})
 	} else {
-		args := c.Mock.MethodCalled("Transmit", cmd)
+		args := c.MethodCalled("Transmit", cmd)
 
 		switch r := args.Get(0).(type) {
 		case nil:
@@ -132,7 +132,7 @@ func (c *MockCard) BeginTransaction() error {
 		return err
 	}
 
-	args := c.Mock.MethodCalled("BeginTransaction")
+	args := c.MethodCalled("BeginTransaction")
 	return args.Error(0)
 }
 
@@ -151,7 +151,7 @@ func (c *MockCard) EndTransaction() error {
 		return err
 	}
 
-	args := c.Mock.MethodCalled("EndTransaction")
+	args := c.MethodCalled("EndTransaction")
 	return args.Error(0)
 }
 
@@ -212,7 +212,7 @@ func (c *MockCard) LoadTranscript() error {
 				return fmt.Errorf("failed to decode command: %w", err)
 			}
 
-			call = c.Mock.On(method, cmd)
+			call = c.On(method, cmd)
 
 			if len(args) > 1 {
 				resp, err := hex.DecodeString(args[1])
@@ -226,7 +226,7 @@ func (c *MockCard) LoadTranscript() error {
 			}
 
 		case "BeginTransaction", "EndTransaction":
-			call = c.Mock.On(method).
+			call = c.On(method).
 				Return(nil)
 		}
 

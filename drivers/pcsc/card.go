@@ -61,7 +61,7 @@ func (c *Card) EndTransaction() error {
 
 // Close disconnects and resets the card
 func (c *Card) Close() error {
-	return c.Card.Disconnect(scard.ResetCard)
+	return c.Disconnect(scard.ResetCard)
 }
 
 // Reset reconnects and resets the card
