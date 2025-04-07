@@ -106,9 +106,10 @@ func (c *Card) COSVersion() (string, error) {
 		P2:  127,
 	}); err == nil {
 		if len(resp) > 20 {
-			if resp[8] == 1 {
+			switch resp[8] {
+			case 1:
 				return fmt.Sprintf("%02X%02X", resp[8], resp[9]), nil
-			} else if resp[8] == 0 {
+			case 0:
 				return fmt.Sprintf("%x%x%02X", resp[9], resp[10], resp[11]), nil
 			}
 
