@@ -13,6 +13,10 @@ import (
 // with the provided name.
 func HasName(nameExpected string) Filter {
 	return func(card iso.PCSCCard) (bool, error) {
+		if card == nil {
+			return false, ErrOpen
+		}
+
 		if card, ok := card.(iso.ReaderCard); ok {
 			return card.Reader() == nameExpected, nil
 		}
@@ -26,6 +30,10 @@ func HasName(nameExpected string) Filter {
 func HasNameRegex(regex string) Filter {
 	re := regexp.MustCompile(regex)
 	return func(card iso.PCSCCard) (bool, error) {
+		if card == nil {
+			return false, ErrOpen
+		}
+
 		if card, ok := card.(iso.ReaderCard); ok {
 			return re.MatchString(card.Reader()), nil
 		}

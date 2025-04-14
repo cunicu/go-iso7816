@@ -27,12 +27,15 @@ func OpenCards(ctx *scard.Context, cnt int, flt filter.Filter, shared bool) (car
 	slices.Sort(readers)
 
 	for _, reader := range readers {
-		var card iso.PCSCCard
+		var pcscCard iso.PCSCCard
+		var card *iso.Card
 		for i := 0; i < 2; i++ {
-			if match, err := flt(card); errors.Is(err, filter.ErrOpen) || match {
+			if match, err := flt(pcscCard); errors.Is(err, filter.ErrOpen) || match {
 				if card, err = NewCard(ctx, reader, shared); err != nil {
 					return nil, fmt.Errorf("failed to connect to card: %w", err)
 				}
+
+				pcscCard = card.PCSCCard
 
 				if match {
 					cards = append(cards, card)
