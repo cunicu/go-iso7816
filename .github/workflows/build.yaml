@@ -39,9 +39,9 @@ jobs:
     - name: Lint
       # TODO: golangci-lint v1.54 is currently broken on Windows?
       if: matrix.os != 'windows-latest'
-      uses: golangci/golangci-lint-action@v6
+      uses: golangci/golangci-lint-action@v7
       with:
-        version: v1.59.1
+        version: v2.0.2
 
     - name: Set up gotestfmt
       run: go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
