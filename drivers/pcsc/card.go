@@ -13,7 +13,11 @@ import (
 	iso "cunicu.li/go-iso7816"
 )
 
-var _ iso.PCSCCard = (*Card)(nil)
+var (
+	_ iso.ReconnectableCard = (*Card)(nil)
+	_ iso.ReaderCard        = (*Card)(nil)
+	_ iso.PCSCCard          = (*Card)(nil)
+)
 
 // Card implements the iso7816.PCSCCard interface
 // via github.com/ebfe/scard.
@@ -79,4 +83,9 @@ func (c *Card) Reconnect(reset bool) (err error) {
 			return err
 		}
 	}
+}
+
+// Reader returns the name of the reader.
+func (c *Card) Reader() string {
+	return c.reader
 }
