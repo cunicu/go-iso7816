@@ -14,7 +14,9 @@ on:
 jobs:
   build:
     name: Build
-
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -72,3 +74,5 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         files: cover.profile
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
